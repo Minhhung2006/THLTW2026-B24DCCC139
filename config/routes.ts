@@ -49,6 +49,14 @@
 		icon: 'ShoppingOutlined',
 		component: './bt1',
 	},
+	// ================= BT2 =================
+    {
+        path: '/bt2',
+        name: 'Quản lý Đơn hàng',
+        icon: 'ShoppingCartOutlined',
+        component: './bt2',
+    },
+
 
 	// ================= SYSTEM =================
 	{
