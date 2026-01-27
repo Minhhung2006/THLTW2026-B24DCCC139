@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Table, Button, Modal, Form, Input, InputNumber, Popconfirm, message, Space } from 'antd';
+import { Table, Button, Modal, Form, Input, InputNumber, Popconfirm, message } from 'antd';
 
 interface Product {
   id: number;
@@ -9,7 +9,7 @@ interface Product {
 }
 
 const Bt1: React.FC = () => {
-  const [data, setData] = useState<Product[]>([
+  const [products, setProducts] = useState<Product[]>([
     { id: 1, name: 'Laptop Dell XPS 13', price: 25000000, quantity: 10 },
     { id: 2, name: 'iPhone 15 Pro Max', price: 30000000, quantity: 15 },
     { id: 3, name: 'Samsung Galaxy S24', price: 22000000, quantity: 20 },
@@ -17,8 +17,8 @@ const Bt1: React.FC = () => {
     { id: 5, name: 'MacBook Air M3', price: 28000000, quantity: 8 },
   ]);
 
-  const [open, setOpen] = useState(false);
-  const [keyword, setKeyword] = useState('');
+  const [visible, setVisible] = useState(false);
+  const [searchText, setSearchText] = useState('');
   const [form] = Form.useForm();
 
   const handleAdd = () => {
@@ -29,20 +29,20 @@ const Bt1: React.FC = () => {
         price: values.price,
         quantity: values.quantity,
       };
-      setData([...data, newProduct]);
+      setProducts([...products, newProduct]);
       message.success('Thêm sản phẩm thành công');
       form.resetFields();
-      setOpen(false);
+      setVisible(false);
     });
   };
 
   const handleDelete = (id: number) => {
-    setData(data.filter(item => item.id !== id));
+    setProducts(products.filter(item => item.id !== id));
     message.success('Xóa sản phẩm thành công');
   };
 
-  const filteredData = data.filter(item =>
-    item.name.toLowerCase().includes(keyword.toLowerCase()),
+  const filteredProducts = products.filter(item =>
+    item.name.toLowerCase().includes(searchText.toLowerCase()),
   );
 
   const columns = [
@@ -57,7 +57,7 @@ const Bt1: React.FC = () => {
     {
       title: 'Giá',
       dataIndex: 'price',
-      render: (v: number) => v.toLocaleString('vi-VN'),
+      render: (value: number) => value.toLocaleString('vi-VN'),
     },
     {
       title: 'Số lượng',
@@ -66,7 +66,10 @@ const Bt1: React.FC = () => {
     {
       title: 'Thao tác',
       render: (_: any, record: Product) => (
-        <Popconfirm title="Xóa sản phẩm?" onConfirm={() => handleDelete(record.id)}>
+        <Popconfirm
+          title="Bạn có chắc muốn xóa?"
+          onConfirm={() => handleDelete(record.id)}
+        >
           <Button danger>Xóa</Button>
         </Popconfirm>
       ),
@@ -74,54 +77,54 @@ const Bt1: React.FC = () => {
   ];
 
   return (
-    <>
-      <Space style={{ marginBottom: 16 }}>
+    <div>
+      <div style={{ marginBottom: 16 }}>
         <Input.Search
           placeholder="Tìm kiếm sản phẩm"
-          onChange={e => setKeyword(e.target.value)}
-          allowClear
+          style={{ width: 300, marginRight: 8 }}
+          onChange={e => setSearchText(e.target.value)}
         />
-        <Button type="primary" onClick={() => setOpen(true)}>
+        <Button type="primary" onClick={() => setVisible(true)}>
           Thêm sản phẩm
         </Button>
-      </Space>
+      </div>
 
-      <Table rowKey="id" columns={columns} dataSource={filteredData} />
+      <Table rowKey="id" columns={columns} dataSource={filteredProducts} />
 
       <Modal
         title="Thêm sản phẩm"
-        visible={open}
-        onCancel={() => setOpen(false)}
+        visible={visible}
         onOk={handleAdd}
+        onCancel={() => setVisible(false)}
         okText="Thêm"
       >
         <Form form={form} layout="vertical">
           <Form.Item
-            name="name"
             label="Tên sản phẩm"
-            rules={[{ required: true }]}
+            name="name"
+            rules={[{ required: true, message: 'Vui lòng nhập tên sản phẩm' }]}
           >
             <Input />
           </Form.Item>
 
           <Form.Item
-            name="price"
             label="Giá"
+            name="price"
             rules={[{ required: true, type: 'number', min: 1 }]}
           >
             <InputNumber style={{ width: '100%' }} />
           </Form.Item>
 
           <Form.Item
-            name="quantity"
             label="Số lượng"
+            name="quantity"
             rules={[{ required: true, type: 'number', min: 1 }]}
           >
             <InputNumber style={{ width: '100%' }} />
           </Form.Item>
         </Form>
       </Modal>
-    </>
+    </div>
   );
 };
 

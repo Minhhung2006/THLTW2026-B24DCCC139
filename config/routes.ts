@@ -16,8 +16,7 @@
 		],
 	},
 
-	///////////////////////////////////
-	// DEFAULT MENU
+	// ================= DEFAULT MENU =================
 	{
 		path: '/dashboard',
 		name: 'Dashboard',
@@ -43,20 +42,15 @@
 		component: './TodoList',
 	},
 
-	// DANH MUC HE THONG
-	// {
-	// 	name: 'DanhMuc',
-	// 	path: '/danh-muc',
-	// 	icon: 'copy',
-	// 	routes: [
-	// 		{
-	// 			name: 'ChucVu',
-	// 			path: 'chuc-vu',
-	// 			component: './DanhMuc/ChucVu',
-	// 		},
-	// 	],
-	// },
+	// ================= BT1 =================
+	{
+		path: '/bt1',
+		name: 'Quản Lý Sản Phẩm',
+		icon: 'ShoppingOutlined',
+		component: './bt1',
+	},
 
+	// ================= SYSTEM =================
 	{
 		path: '/notification',
 		routes: [
@@ -78,9 +72,6 @@
 		],
 		layout: false,
 		hideInMenu: true,
-	},
-	{
-		path: '/',
 	},
 	{
 		path: '/403',
