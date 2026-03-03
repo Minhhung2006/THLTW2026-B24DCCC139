@@ -135,7 +135,7 @@ export default function Bai2() {
 
       <Modal
         title={editingItem ? 'Chỉnh sửa lịch học' : 'Thêm lịch học'}
-        visible={visible}   // ⚠ antd v4 dùng visible
+        visible={visible}   
         onCancel={() => setVisible(false)}
         onOk={handleSubmit}
         destroyOnClose
