@@ -42,23 +42,21 @@
 		icon: 'OrderedListOutlined',
 		component: './TodoList',
 	},
-
-	// DANH MUC HE THONG
-	// {
-	// 	name: 'DanhMuc',
-	// 	path: '/danh-muc',
-	// 	icon: 'copy',
-	// 	routes: [
-	// 		{
-	// 			name: 'ChucVu',
-	// 			path: 'chuc-vu',
-	// 			component: './DanhMuc/ChucVu',
-	// 		},
-	// 	],
-	// },
-
+// DANH MUC HE THONG 
+// { 
+//     name: 'DanhMuc', 
+//     path: '/danh-muc', 
+//     icon: 'copy', 
+//     routes: [ 
+//         { 
+//             name: 'ChucVu', 
+//             path: 'chuc-vu', 
+//             component: './DanhMuc/ChucVu', 
+//         }, 
+//     ], 
+// },
 	{
-		path: '/notification',
+	    path: '/notification',
 		routes: [
 			{
 				path: './subscribe',
@@ -79,20 +77,32 @@
 		layout: false,
 		hideInMenu: true,
 	},
+
 	{
-		path: '/',
-	},
-	{
-		path: '/403',
-		component: './exception/403/403Page',
-		layout: false,
-	},
-	{
-		path: '/hold-on',
-		component: './exception/DangCapNhat',
-		layout: false,
-	},
-	{
-		component: './exception/404',
-	},
+		path: '/th03',
+		name: 'TH03 - Đặt lịch dịch vụ',
+		icon: 'CalendarOutlined',
+		routes: [
+			{
+			path: '/th03/staff-service',
+			name: 'Nhân viên & Dịch vụ',
+			component: './th03/StaffService',
+			},
+			{
+			path: '/th03/appointment',
+			name: 'Quản lý lịch hẹn',
+			component: './th03/Appointment',
+			},
+			{
+			path: '/th03/review',
+			name: 'Đánh giá',
+			component: './th03/Review',
+			},
+			{
+			path: '/th03/report',
+			name: 'Thống kê',
+			component: './th03/Report',
+			},
+		],
+    },
 ];
