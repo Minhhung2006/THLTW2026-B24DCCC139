@@ -77,32 +77,36 @@
 		layout: false,
 		hideInMenu: true,
 	},
-
 	{
-		path: '/th03',
-		name: 'TH03 - Đặt lịch dịch vụ',
-		icon: 'CalendarOutlined',
+		path: '/th04',
+		name: 'TH04 - Văn bằng',
+		icon: 'BookOutlined',
 		routes: [
 			{
-			path: '/th03/staff-service',
-			name: 'Nhân viên & Dịch vụ',
-			component: './th03/StaffService',
+				path: '/th04/so-van-bang',
+				name: 'Sổ văn bằng',
+				component: './th04/SoVanBang',
 			},
 			{
-			path: '/th03/appointment',
-			name: 'Quản lý lịch hẹn',
-			component: './th03/Appointment',
+				path: '/th04/quyet-dinh',
+				name: 'Quyết định tốt nghiệp',
+				component: './th04/QuyetDinh',
 			},
 			{
-			path: '/th03/review',
-			name: 'Đánh giá',
-			component: './th03/Review',
+				path: '/th04/bieu-mau',
+				name: 'Cấu hình biểu mẫu',
+				component: './th04/BieuMau',
 			},
 			{
-			path: '/th03/report',
-			name: 'Thống kê',
-			component: './th03/Report',
+				path: '/th04/van-bang',
+				name: 'Thông tin văn bằng',
+				component: './th04/VanBang',
+			},
+			{
+				path: '/th04/tra-cuu',
+				name: 'Tra cứu',
+				component: './th04/TraCuu',
 			},
 		],
-    },
+	}
 ];
