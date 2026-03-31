@@ -78,35 +78,29 @@
 		hideInMenu: true,
 	},
 	{
-		path: '/th04',
-		name: 'TH04 - Văn bằng',
-		icon: 'BookOutlined',
+  		path: '/th05',
+		name: 'TH05 - CLB',
 		routes: [
-			{
-				path: '/th04/so-van-bang',
-				name: 'Sổ văn bằng',
-				component: './th04/SoVanBang',
-			},
-			{
-				path: '/th04/quyet-dinh',
-				name: 'Quyết định tốt nghiệp',
-				component: './th04/QuyetDinh',
-			},
-			{
-				path: '/th04/bieu-mau',
-				name: 'Cấu hình biểu mẫu',
-				component: './th04/BieuMau',
-			},
-			{
-				path: '/th04/van-bang',
-				name: 'Thông tin văn bằng',
-				component: './th04/VanBang',
-			},
-			{
-				path: '/th04/tra-cuu',
-				name: 'Tra cứu',
-				component: './th04/TraCuu',
-			},
-		],
+   			{
+        		path: '/th05/club',
+       			name: 'Quản lý CLB',
+        		component: './th05/Club',
+    		},
+   			{
+      			path: '/th05/registration',
+      			name: 'Đơn đăng ký',
+      			component: './th05/Registration',
+    		},
+    		{
+      			path: '/th05/member',
+      			name: 'Thành viên',
+      			component: './th05/Member',
+    		},
+    		{
+      			path: '/th05/report',
+      			name: 'Thống kê',
+      			component: './th05/Report',
+    		},
+  		],
 	}
 ];
