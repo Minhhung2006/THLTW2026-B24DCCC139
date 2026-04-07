@@ -1,0 +1,184 @@
+[33m2074006[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mth06[m[33m, [m[1;31morigin/th06[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m todolist
+[33mc3d1cf4[m fixbug
+[33m3a0e98c[m init
+[33mcac5411[m fixbug
+[33m34e82ca[m fixbug
+[33md5709cc[m ButtonExtend: Fix hide text
+[33mcd0e746[m fix
+[33m2962345[m Add TabViewPage component
+[33m1e6d786[m Merge branch 'feat/thong-bao' into 'basev3'
+[33m393127a[m Update
+[33mcfd4d93[m Merge branch 'feat/thong-bao' into 'basev3'
+[33m083de60[m update
+[33m9aaba7f[m update
+[33md20f189[m update
+[33m38e905f[m update
+[33m274fee4[m Base thêm mới thông báo
+[33m936af21[m Update style Phản hồi
+[33m7b250a1[m AuditLog: Update view modal
+[33m43eccc4[m Merge branch 'feat/base_previewFile' into 'basev3'
+[33m1dd63d3[m AuditLog: Base view
+[33mfd0bcd9[m BASE: Chuyển config màu sang OIDC
+[33me3da3f4[m Update css
+[33m0a7b8af[m Merge branch 'feat/base_previewFile' into 'basev3'
+[33ma3ba2ed[m update
+[33m0e3a315[m update
+[33m15527b4[m Base gợi ý tìm kiếm: reverse option
+[33md52e7f7[m Setting: Udpate
+[33m6d0e7a9[m Thông báo: Fix read noti
+[33mb978413[m Merge branch 'feat/base_previewFile' into 'basev3'
+[33m76c8175[m Fix bug auto dowload iframe
+[33m0dbe17c[m Merge branch 'feat/base_previewFile' into 'basev3'
+[33m0cdb07a[m Tối ưu base preview file
+[33m1feb890[m UI: Update CSS
+[33mfffde79[m Merge branch 'feat/base_previewFile' into 'basev3'
+[33m49b4410[m update Interface file
+[33me1bb946[m Merge branch 'feat/base_previewFile' into 'basev3'
+[33m24860b7[m update
+[33m6832b0c[m Merge branch 'feat/base_previewFile' into 'basev3'
+[33m4326062[m update Path IP
+[33m520a394[m Update URL VWA
+[33mec41e1a[m Merge branch 'feat/base_previewFile' into 'basev3'
+[33m51378c4[m update
+[33me169492[m Merge branch 'feat/thong-bao' into 'basev3'
+[33mbbd564b[m update
+[33m70f538c[m Base FilterType string: gợi ý lịch sử tìm kiếm
+[33mccac841[m update
+[33ma4b7edf[m update
+[33ma4001a3[m update
+[33m9f63ccf[m Base preview file
+[33mda9a930[m Audit Log: Thêm modal
+[33m206a48b[m Thêm Audit Log
+[33m2e41038[m Tinyeditor: Update sticky toolbar
+[33me6231c2[m update/sorter table static data
+[33m90f4323[m Fix compare name
+[33m333983c[m Fix eslint
+[33m62f6d0d[m update check access
+[33m3b86f78[m Setting: add setting by base services
+[33mf305f00[m OIDC: Add timeout
+[33mc5524a5[m Setting: other ip
+[33mae2122c[m Table base: Set init filter
+[33m52f0006[m Avatar: To hơn
+[33m27f81fb[m Merge branch 'feat/thong-bao' into 'basev3'
+[33mf3d60df[m Thông báo: Xóa '/' trước pathWeb
+[33mbf3edf0[m Base import: Fix hiển thị lỗi xử lý dữ liệu
+[33m26f262e[m OIDC: Fix unauth public paths
+[33m1775cda[m OIDC: Fix
+[33m655ea2c[m OIDC: Fix
+[33m6866c5e[m Fix error message
+[33m315eb3c[m Loading page: update
+[33m3b6bbb5[m Fix
+[33mbc32d1f[m OIDC: Fix redirect
+[33ma6a4f5d[m Upload file: add disabled
+[33m2876ad2[m OIDC: Update
+[33m63385b4[m OIDC: Update redirect sau khi đăng nhập
+[33mecbee19[m fix
+[33m6100823[m 🍾 Resize images while upload files
+[33m3f58dde[m Axios: Update cảnh báo lỗi
+[33m5e64c43[m Route: add Đang cập nhật
+[33mcbe6ac3[m OIDC: Fix uncheckpermission path
+[33m80ee8ad[m Update CSS
+[33m464b0e3[m Merge branch 'basev3' of https://gitlab.aisoftech.vn/web/base-web into basev3
+[33m41490ad[m Add Card highlight
+[33mc6e786f[m Merge branch 'feat/base_thongbao' into 'basev3'
+[33m0c39807[m update emun thông báo
+[33m3fcbf82[m Merge branch 'feat/base_thongbao' into 'basev3'
+[33m6a0328d[m update derect thông báo
+[33mc2f4882[m fix onesignal
+[33m03fe553[m Update
+[33m2a7818a[m Avatar: hiển thị chữ cái tên
+[33mca6a2a6[m Fix
+[33m0b385aa[m Fix CSS
+[33m34eb54d[m Update CSS
+[33m79d265d[m Update rules httpLink
+[33m2ba0792[m Util: Update
+[33ma2fca81[m Merge branch 'feat/base_thongbao' into 'basev3'
+[33m99f0f5a[m update direct thông báo
+[33mf9706ca[m Update typing
+[33m4e56938[m Merge branch 'basev3' of https://gitlab.aisoftech.vn/web/base-web into basev3ript
+[33m44cc352[m Module: UPdate icon
+[33md21de1b[m Merge branch 'basev3' of https://gitlab.aisoftech.vn/web/base-web into basev3ript
+[33mef6f792[m Module: Thêm cổng thông tin
+[33mc1ceab3[m Thông báo: Fix style
+[33m846c260[m Tiny: Fix toolbar
+[33m50613ab[m Tiny: autoheight, tiny toolbar
+[33mef7fa11[m Tiny: Update style
+[33m83929aa[m Tiny: Add font family
+[33m9154b0a[m Init model fix set total
+[33m3811a03[m Init model: Update setDanhSach
+[33mca07405[m Base import: Fix preview import response
+[33mfc1eab9[m Axios: Đọc lỗi từ các API dạng arraybuffer
+[33mc3a6c50[m Table base: Fix filters
+[33m0524d5c[m Table base: Update filter liên bảng
+[33m91293de[m Update CSS
+[33m084a938[m Update CSS
+[33m17bd3c6[m Update style Big calendar
+[33md35f2e3[m Fix tab CSS
+[33m58ab049[m Update QlVB
+[33m102c51a[m Merge branch 'basev3' of https://gitlab.aisoftech.vn/web/base-web into basev3ript
+[33mddc816b[m Thông báo: Update interface
+[33m6349289[m Thông báo: Thêm notif type
+[33m04d2ce0[m Update URL CSVC
+[33me11fcac[m Module: Thêm quản lý văn bản
+[33m3f98c3c[m Base: Update filter liên bảng
+[33m3f0e6ed[m Init model: get many add otherQuery
+[33m8d219ec[m Base import: allow execute even if has errors
+[33m14d56be[m Update thư viện icon
+[33mec04ae7[m Merge branch 'basev3' of https://gitlab.aisoftech.vn/web/base-web into basev3ript
+[33m54436f2[m Thêm module icon
+[33m7f41319[m Loading: permission loading
+[33m9be3d6c[m Fix
+[33m9835b92[m Table: Empty size small
+[33m80aa919[m Init model: Add put many, delete many
+[33m59d99b9[m Import: Fix text
+[33m000bb57[m Import: Fix convert string to number float
+[33mafa4ee4[m Import: Làm tròn 2 chữ số thập phân, xử lý decimal seperator
+[33mb88cddf[m Merge branch 'feat/tiny-mce' into 'basev3'
+[33m4351a41[m fix
+[33m3a1b7f7[m Setting: Update
+[33m9f203be[m Base: Thêm setting base
+[33m9276de9[m Add thư viện module
+[33m1781a54[m Table: Update column title CSS
+[33m1830081[m Add btn-warning
+[33m241d788[m Fix link CSVC
+[33md6687e4[m Add khảo thi URL
+[33md1eb089[m Check Init sentry, OneSignal
+[33m78f9752[m Table base: Update custom filter children columns
+[33m929f431[m Module: Bổ sung phân hệ Cơ sở vật chất
+[33meef2241[m Update access check scopes
+[33mf1c2dc0[m update Portal link
+[33mf783ea4[m Menu: Chuyển sang link
+[33m139b163[m Tiny: Update disabled
+[33me4a55c5[m Table: Update size small
+[33mc909ecd[m Access: add manyAccessFilter
+[33mb3fa090[m Base export: Update uncheck all
+[33maf099a1[m Base export: add uncheck all
+[33m1e3b3d1[m Util: Update format phone number
+[33m583daf7[m Update sentry rate
+[33m29da3f5[m Update slink sinh viên
+[33mf02e425[m Table Static: Update render columns
+[33m24f3f35[m Base Import: check error count
+[33mbad9c5f[m Print Template: Thêm tên phòng ban
+[33m6c4fcb1[m Base Export: add other query
+[33mc6a902c[m Base Export: add other query
+[33md7e252d[m Avatar: add 365
+[33mc42c298[m Update Url Portal
+[33m3dd7767[m Tắt đổi mật khẩu
+[33m2384467[m Update docker
+[33m39cc033[m Update: Hệ thống chuyển đổi số
+[33m5334d8b[m Update avatar dropdown
+[33mf0c7a05[m Module: Thêm khảo thí
+[33m06b9c82[m CSS: Fix CSS alert
+[33macdb32e[m Table: Update filter string populated fields
+[33m7932071[m CSS: Update sidebar CSS
+[33md0bc8fa[m Merge branch 'basev3' of https://gitlab.aisoftech.vn/web/base-web into basev3ript
+[33m4892aa0[m Header: Cập nhật header page
+[33m53a7f56[m Table: Fix gen custome select child column
+[33mc7df046[m Module: Ẩn modules ko có url
+[33ma1921bb[m Tiny: Fix upload
+[33mafd58e6[m TableStatic: Custom sort & compare Họ tên tiếng Việt
+[33mc2090ea[m Phản hồi kĩ thuật; Thêm phản hồi
+[33ma5a81ff[m Merge branch 'basev3' of https://gitlab.aisoftech.vn/web/base-web into basev3ript
+[33mae2e49a[m Update link VPS
+[33m18c6280[m ➕ Form waiting
+[33m46
