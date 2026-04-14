@@ -78,34 +78,31 @@
 		hideInMenu: true,
 	},
 
+	///////////////////////////////////
+	// KTGK - COURSE (FIX CASE)
 	{
-  		path: '/th06',
-  		name: 'Travel App',
-  		icon: 'GlobalOutlined',
+  		path: '/ktgk',
+  		name: 'Course',
+  		icon: 'BookOutlined',
   		routes: [
     		{
-      			path: '/th06/home',
-      			name: 'Khám phá',
-      			component: './th06/Home',
+      			path: '/ktgk/management',
+      			name: 'Quản lý',
+      			component: './ktgk/Management',
     		},
     		{
-     		 	path: '/th06/planner',
-      			name: 'Lịch trình',
-      			component: './th06/Planner',
+      			path: '/ktgk/editor',
+      			name: 'Thêm / Sửa',
+      			component: './ktgk/Editor',
     		},
     		{
-      			path: '/th06/budget',
-      			name: 'Ngân sách',
-      			component: './th06/Budget',
+      			path: '/ktgk/remove',
+      			name: 'Xóa',
+      			component: './ktgk/Remove',
     		},
     		{
-      			path: '/th06/admin',
-      			name: 'Quản trị',
-      			component: './th06/Admin',
-    		},
-    		{
-      			path: '/th06',
-      			redirect: '/th06/home',
+      			path: '/ktgk',
+      			redirect: '/ktgk/management',
     		},
   		],
 	}
