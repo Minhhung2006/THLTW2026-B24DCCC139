@@ -1,15 +1,6 @@
-import {
-  Card,
-  Table,
-  Button,
-  Modal,
-  Form,
-  Input,
-  Select,
-  message,
-  Tag
-} from 'antd'
-import { useEffect, useState } from 'react'
+import { Card, Form, Input, Select, Button, message } from 'antd'
+import { useEffect } from 'react'
+import { history, useLocation } from 'umi'
 
 type Course = {
   id: number
@@ -21,210 +12,104 @@ type Course = {
 }
 
 export default function Editor() {
-  const [list, setList] = useState<Course[]>([])
-  const [open, setOpen] = useState(false)
-  const [editing, setEditing] = useState<Course | null>(null)
-
   const [form] = Form.useForm()
+  const location = useLocation()
 
-  // LOAD DATA
+  const params = new URLSearchParams(location.search)
+  const id = params.get('id')
+
   useEffect(() => {
-    const data = JSON.parse(localStorage.getItem('courses') || '[]')
-
-    if (!data.length) {
-      const fake: Course[] = [
-        {
-          id: 1,
-          name: 'ReactJS',
-          teacher: 'Nguyễn Văn A',
-          students: 50,
-          status: 'Đang mở',
-          description: '<p>Khóa học React</p>'
-        }
-      ]
-      localStorage.setItem('courses', JSON.stringify(fake))
-      setList(fake)
-    } else {
-      setList(data)
+    if (id) {
+      const list: Course[] = JSON.parse(localStorage.getItem('courses') || '[]')
+      const found = list.find(i => i.id === Number(id))
+      if (found) form.setFieldsValue(found)
     }
-  }, [])
+  }, [id])
 
-  // SAVE
-  const save = (data: Course[]) => {
-    setList(data)
-    localStorage.setItem('courses', JSON.stringify(data))
-  }
-
-  // SUBMIT FORM
   const onFinish = (values: Course) => {
-    if (editing) {
-      const updated = list.map(item =>
-        item.id === editing.id ? { ...editing, ...values } : item
-      )
-      save(updated)
-      message.success('Cập nhật khóa học thành công')
-    } else {
-      const newCourse: Course = {
-        ...values,
-        id: Date.now()
-      }
-      save([...list, newCourse])
-      message.success('Thêm khóa học thành công')
+    let list: Course[] = JSON.parse(localStorage.getItem('courses') || '[]')
+
+    const duplicate = list.find(
+      i => i.name === values.name && i.id !== Number(id)
+    )
+
+    if (duplicate) {
+      message.error('Tên khóa học đã tồn tại')
+      return
     }
 
-    setOpen(false)
-    setEditing(null)
-    form.resetFields()
-  }
+    if (id) {
+      list = list.map(i =>
+        i.id === Number(id) ? { ...i, ...values } : i
+      )
+      message.success('Cập nhật thành công')
+    } else {
+      list.push({ ...values, id: Date.now() })
+      message.success('Thêm thành công')
+    }
 
-  // EDIT
-  const handleEdit = (record: Course) => {
-    setEditing(record)
-    form.setFieldsValue(record)
-    setOpen(true)
+    localStorage.setItem('courses', JSON.stringify(list))
+    history.push('/ktgk/management')
   }
-
-  const teachers = ['Nguyễn Văn A', 'Trần Văn B', 'Lê Văn C']
 
   return (
-    <Card title="✏️ Thêm & chỉnh sửa khóa học">
+    <Card title="✏️ Thêm / Chỉnh sửa khóa học">
+      <Form layout="vertical" form={form} onFinish={onFinish}>
 
-      <Button
-        type="primary"
-        style={{ marginBottom: 10 }}
-        onClick={() => {
-          setEditing(null)
-          form.resetFields()
-          setOpen(true)
-        }}
-      >
-        Thêm khóa học
-      </Button>
-
-      {/* TABLE */}
-      <Table
-        rowKey="id"
-        bordered
-        dataSource={list}
-        columns={[
-          { title: 'Tên khóa', dataIndex: 'name' },
-          { title: 'Giảng viên', dataIndex: 'teacher' },
-          { title: 'Học viên', dataIndex: 'students' },
-          {
-            title: 'Mô tả',
-            render: (_: any, r: Course) => (
-              <div dangerouslySetInnerHTML={{ __html: r.description }} />
-            )
-          },
-          {
-            title: 'Trạng thái',
-            render: (_: any, r: Course) => {
-              if (r.status === 'Đang mở')
-                return <Tag color="green">Đang mở</Tag>
-              if (r.status === 'Tạm dừng')
-                return <Tag color="orange">Tạm dừng</Tag>
-              return <Tag color="red">Đã kết thúc</Tag>
-            }
-          },
-          {
-            title: 'Action',
-            render: (_: any, r: Course) => (
-              <Button onClick={() => handleEdit(r)}>Sửa</Button>
-            )
-          }
-        ]}
-      />
-
-      {/* MODAL */}
-      <Modal
-        title={editing ? 'Chỉnh sửa khóa học' : 'Thêm khóa học'}
-        visible={open} // ⚠️ nếu lỗi thì đổi thành visible={open}
-        onCancel={() => setOpen(false)}
-        onOk={() => form.submit()}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={onFinish}
+        <Form.Item
+          name="name"
+          label="Tên khóa học"
+          rules={[
+            { required: true, message: 'Không được để trống' },
+            { max: 100, message: 'Tối đa 100 ký tự' }
+          ]}
         >
-          {/* TÊN */}
-          <Form.Item
-            name="name"
-            label="Tên khóa học"
-            rules={[
-              { required: true, message: 'Không được để trống' },
-              { max: 100, message: 'Tối đa 100 ký tự' },
-              {
-                validator: (_, value) => {
-                  if (!value) return Promise.resolve()
+          <Input />
+        </Form.Item>
 
-                  const isDuplicate = list.some(
-                    item =>
-                      item.name.toLowerCase() === value.toLowerCase() &&
-                      item.id !== editing?.id
-                  )
+        <Form.Item
+          name="teacher"
+          label="Giảng viên"
+          rules={[{ required: true }]}
+        >
+          <Select>
+            <Select.Option value="Nguyễn Văn A">Nguyễn Văn A</Select.Option>
+            <Select.Option value="Trần Văn B">Trần Văn B</Select.Option>
+          </Select>
+        </Form.Item>
 
-                  return isDuplicate
-                    ? Promise.reject('Tên khóa học đã tồn tại')
-                    : Promise.resolve()
-                }
-              }
-            ]}
-          >
-            <Input />
-          </Form.Item>
+        <Form.Item
+          name="students"
+          label="Số học viên"
+          rules={[{ required: true }]}
+        >
+          <Input type="number" />
+        </Form.Item>
 
-          {/* GIẢNG VIÊN */}
-          <Form.Item
-            name="teacher"
-            label="Giảng viên"
-            rules={[{ required: true, message: 'Chọn giảng viên' }]}
-          >
-            <Select>
-              {teachers.map(t => (
-                <Select.Option key={t} value={t}>
-                  {t}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
+        <Form.Item
+          name="description"
+          label="Mô tả (HTML)"
+          rules={[{ required: true }]}
+        >
+          <Input.TextArea rows={4} />
+        </Form.Item>
 
-          {/* HỌC VIÊN */}
-          <Form.Item
-            name="students"
-            label="Số học viên"
-            rules={[
-              { required: true, message: 'Nhập số học viên' }
-            ]}
-          >
-            <Input type="number" min={0} />
-          </Form.Item>
+        <Form.Item
+          name="status"
+          label="Trạng thái"
+          rules={[{ required: true }]}
+        >
+          <Select>
+            <Select.Option value="Đang mở">Đang mở</Select.Option>
+            <Select.Option value="Tạm dừng">Tạm dừng</Select.Option>
+            <Select.Option value="Đã kết thúc">Đã kết thúc</Select.Option>
+          </Select>
+        </Form.Item>
 
-          {/* MÔ TẢ */}
-          <Form.Item
-            name="description"
-            label="Mô tả (HTML)"
-            rules={[{ required: true, message: 'Nhập mô tả' }]}
-          >
-            <Input.TextArea rows={4} />
-          </Form.Item>
-
-          {/* TRẠNG THÁI */}
-          <Form.Item
-            name="status"
-            label="Trạng thái"
-            rules={[{ required: true, message: 'Chọn trạng thái' }]}
-          >
-            <Select>
-              <Select.Option value="Đang mở">Đang mở</Select.Option>
-              <Select.Option value="Tạm dừng">Tạm dừng</Select.Option>
-              <Select.Option value="Đã kết thúc">Đã kết thúc</Select.Option>
-            </Select>
-          </Form.Item>
-
-        </Form>
-      </Modal>
-
+        <Button type="primary" htmlType="submit">
+          Lưu
+        </Button>
+      </Form>
     </Card>
   )
 }

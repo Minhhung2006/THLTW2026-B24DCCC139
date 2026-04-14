@@ -1,4 +1,4 @@
-import { Card, Table, Button, Popconfirm, message, Tag } from 'antd'
+import { Card, Table, Button, Popconfirm, Tag, message } from 'antd'
 import { useEffect, useState } from 'react'
 
 type Course = {
@@ -24,16 +24,16 @@ export default function Remove() {
     localStorage.setItem('courses', JSON.stringify(data))
   }
 
-  // DELETE (có điều kiện)
-  const handleRemove = (record: Course) => {
+  // DELETE
+  const handleDelete = (record: Course) => {
     if (record.students > 0) {
-      message.error('Không thể xóa khóa học đã có học viên')
+      message.error('❌ Không thể xóa khóa học đã có học viên')
       return
     }
 
     const newData = list.filter(item => item.id !== record.id)
     save(newData)
-    message.success('Xóa thành công')
+    message.success('✅ Xóa khóa học thành công')
   }
 
   return (
@@ -44,9 +44,21 @@ export default function Remove() {
         bordered
         dataSource={list}
         columns={[
+          { title: 'ID', dataIndex: 'id' },
           { title: 'Tên khóa', dataIndex: 'name' },
           { title: 'Giảng viên', dataIndex: 'teacher' },
-          { title: 'Học viên', dataIndex: 'students' },
+          {
+            title: 'Số HV',
+            dataIndex: 'students',
+            render: (value: number) =>
+              value > 0 ? (
+                <span style={{ color: 'red', fontWeight: 600 }}>
+                  {value}
+                </span>
+              ) : (
+                value
+              )
+          },
           {
             title: 'Trạng thái',
             render: (_: any, r: Course) => {
@@ -61,13 +73,21 @@ export default function Remove() {
             title: 'Hành động',
             render: (_: any, r: Course) => (
               <Popconfirm
-                title="Bạn có chắc muốn xóa?"
-                onConfirm={() => handleRemove(r)}
+                title={
+                  <>
+                    Bạn có chắc muốn xóa?<br />
+                    Hành động này không thể hoàn tác!
+                  </>
+                }
+                onConfirm={() => handleDelete(r)}
                 okText="Xóa"
                 cancelText="Hủy"
                 disabled={r.students > 0}
               >
-                <Button danger disabled={r.students > 0}>
+                <Button
+                  danger
+                  disabled={r.students > 0}
+                >
                   Xóa
                 </Button>
               </Popconfirm>
