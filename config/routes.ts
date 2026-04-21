@@ -79,30 +79,40 @@
 	},
 
 	///////////////////////////////////
-	// KTGK - COURSE (FIX CASE)
+	// TH07 - BLOG
 	{
-  		path: '/ktgk',
-  		name: 'Course',
-  		icon: 'BookOutlined',
+  		path: '/th07',
+  		name: 'Blog',
+  		icon: 'ReadOutlined',
   		routes: [
     		{
-      			path: '/ktgk/management',
-      			name: 'Quản lý',
-      			component: './ktgk/Management',
+      			path: '/th07/home',
+      			name: 'Trang chủ',
+      			component: './th07/Home',
     		},
     		{
-      			path: '/ktgk/editor',
-      			name: 'Thêm / Sửa',
-      			component: './ktgk/Editor',
+      			path: '/th07/post/:slug',
+      			component: './th07/PostDetail',
+      			hideInMenu: true,
     		},
     		{
-      			path: '/ktgk/remove',
-      			name: 'Xóa',
-      			component: './ktgk/Remove',
+      			path: '/th07/about',
+      			name: 'Giới thiệu',
+      			component: './th07/About',
     		},
     		{
-      			path: '/ktgk',
-      			redirect: '/ktgk/management',
+      			path: '/th07/manage',
+      			name: 'Quản lý bài viết',
+      			component: './th07/ManagePost',
+    		},
+    		{
+      			path: '/th07/tags',
+      			name: 'Quản lý thẻ',
+      			component: './th07/ManageTag',
+    		},
+    		{
+      			path: '/th07',
+      			redirect: '/th07/home',
     		},
   		],
 	}
