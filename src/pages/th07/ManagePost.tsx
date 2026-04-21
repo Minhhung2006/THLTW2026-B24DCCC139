@@ -38,14 +38,12 @@ export default function ManagePost() {
 
   const [form] = Form.useForm()
 
-  // LOAD
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem('posts') || '[]')
     setList(data)
     setFiltered(data)
   }, [])
 
-  // FILTER
   useEffect(() => {
     let data = [...list]
 
@@ -60,34 +58,29 @@ export default function ManagePost() {
     setFiltered(data)
   }, [keyword, status, list])
 
-  // SAVE
   const save = (data: Post[]) => {
     setList(data)
     localStorage.setItem('posts', JSON.stringify(data))
   }
 
-  // DELETE
   const handleDelete = (id: number) => {
     const newData = list.filter(p => p.id !== id)
     save(newData)
     message.success('Đã xóa')
   }
 
-  // OPEN ADD
   const openAdd = () => {
     setEditing(null)
     form.resetFields()
     setOpen(true)
   }
 
-  // OPEN EDIT
   const openEdit = (record: Post) => {
     setEditing(record)
     form.setFieldsValue(record)
     setOpen(true)
   }
 
-  // SUBMIT
   const onFinish = (values: Post) => {
     let data = [...list]
 

@@ -32,7 +32,6 @@ export default function PostDetail() {
 
     if (!current) return
 
-    // ✅ tăng view
     current.views = (current.views || 0) + 1
 
     const updated = posts.map((p: any) =>
@@ -42,7 +41,6 @@ export default function PostDetail() {
     localStorage.setItem('posts', JSON.stringify(updated))
     setPost(current)
 
-    // ✅ bài liên quan
     const relatedPosts = posts.filter(
       (p: any) =>
         p.slug !== slug &&

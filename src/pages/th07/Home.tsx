@@ -39,7 +39,6 @@ export default function Home() {
   const [page, setPage] = useState(1)
   const pageSize = 9
 
-  // LOAD DATA
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem('posts') || '[]')
       .filter((p: Post) => p.status === 'published')
@@ -48,7 +47,6 @@ export default function Home() {
     setFiltered(data)
   }, [])
 
-  // SEARCH + FILTER + DEBOUNCE
   useEffect(() => {
     const timer = setTimeout(() => {
       let data = [...posts]
@@ -70,7 +68,6 @@ export default function Home() {
     return () => clearTimeout(timer)
   }, [keyword, activeTag, posts])
 
-  // PAGINATION
   const start = (page - 1) * pageSize
   const currentData = filtered.slice(start, start + pageSize)
 

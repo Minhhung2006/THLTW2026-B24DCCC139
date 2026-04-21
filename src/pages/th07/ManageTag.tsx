@@ -29,45 +29,38 @@ export default function ManageTag() {
 
   const [form] = Form.useForm()
 
-  // LOAD DATA
   useEffect(() => {
     setTags(JSON.parse(localStorage.getItem('tags') || '[]'))
     setPosts(JSON.parse(localStorage.getItem('posts') || '[]'))
   }, [])
 
-  // SAVE TAG
   const save = (data: TagType[]) => {
     setTags(data)
     localStorage.setItem('tags', JSON.stringify(data))
   }
 
-  // COUNT POST
   const countPost = (tagName: string) => {
     return posts.filter(p => p.tags.includes(tagName)).length
   }
 
-  // ADD
   const openAdd = () => {
     setEditing(null)
     form.resetFields()
     setOpen(true)
   }
 
-  // EDIT
   const openEdit = (record: TagType) => {
     setEditing(record)
     form.setFieldsValue(record)
     setOpen(true)
   }
 
-  // DELETE
   const handleDelete = (id: number) => {
     const newData = tags.filter(t => t.id !== id)
     save(newData)
     message.success('Đã xóa')
   }
 
-  // SUBMIT
   const onFinish = (values: TagType) => {
     let data = [...tags]
 
