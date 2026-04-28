@@ -25,13 +25,11 @@ export default function Goals() {
   const [form] = Form.useForm()
   const [statusFilter, setStatusFilter] = useState('all')
 
-  // load
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem('goals') || '[]')
     setData(saved)
   }, [])
 
-  // filter
   useEffect(() => {
     if (statusFilter === 'all') {
       setFiltered(data)
@@ -40,19 +38,16 @@ export default function Goals() {
     }
   }, [data, statusFilter])
 
-  // save
   const saveData = (newData: any[]) => {
     setData(newData)
     localStorage.setItem('goals', JSON.stringify(newData))
   }
 
-  // % progress
   const getPercent = (g: any) => {
     if (!g.target) return 0
     return Math.min((g.current / g.target) * 100, 100)
   }
 
-  // add
   const handleSubmit = () => {
     form.validateFields().then((values) => {
       const newItem = {
@@ -67,7 +62,6 @@ export default function Goals() {
     })
   }
 
-  // delete
   const handleDelete = (id: number) => {
     saveData(data.filter((g) => g.id !== id))
   }
@@ -80,7 +74,6 @@ export default function Goals() {
     saveData(newData)
   }
 
-  // status color
   const getStatusTag = (s: string) => {
     if (s === 'doing') return <Tag color="blue">Đang thực hiện</Tag>
     if (s === 'done') return <Tag color="green">Đã đạt</Tag>

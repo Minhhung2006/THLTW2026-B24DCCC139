@@ -18,7 +18,6 @@ export default function HealthLog() {
   const [editing, setEditing] = useState<any>(null)
   const [form] = Form.useForm()
 
-  // load data
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem('health') || '[]')
     setData(saved)
@@ -29,17 +28,12 @@ export default function HealthLog() {
     localStorage.setItem('health', JSON.stringify(newData))
   }
 
-  // =====================
-  // 🔥 TÍNH BMI
-  // =====================
+
   const calcBMI = (w: number, h: number) => {
     if (!w || !h) return 0
     return +(w / ((h / 100) ** 2)).toFixed(1)
   }
 
-  // =====================
-  // 🎨 TAG BMI
-  // =====================
   const getBMIStatus = (bmi: number) => {
     if (bmi < 18.5)
       return { color: 'blue', text: 'Thiếu cân' }
@@ -50,9 +44,6 @@ export default function HealthLog() {
     return { color: 'red', text: 'Béo phì' }
   }
 
-  // =====================
-  // ➕ ADD / EDIT
-  // =====================
   const handleSubmit = () => {
     form.validateFields().then((values) => {
       const bmi = calcBMI(values.weight, values.height)
@@ -81,7 +72,6 @@ export default function HealthLog() {
     })
   }
 
-  // edit
   const handleEdit = (record: any) => {
     setEditing(record)
     form.setFieldsValue({
@@ -91,15 +81,11 @@ export default function HealthLog() {
     setOpen(true)
   }
 
-  // delete
   const handleDelete = (id: number) => {
     const newData = data.filter((i) => i.id !== id)
     saveData(newData)
   }
 
-  // =====================
-  // 📊 TABLE
-  // =====================
   const columns = [
     {
       title: 'Ngày',

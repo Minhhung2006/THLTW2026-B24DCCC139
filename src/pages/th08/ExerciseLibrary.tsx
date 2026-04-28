@@ -25,14 +25,12 @@ export default function ExerciseLibrary() {
   const [editing, setEditing] = useState<any>(null)
   const [form] = Form.useForm()
 
-  // load
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem('exercises') || '[]')
     setData(saved)
     setFiltered(saved)
   }, [])
 
-  // filter
   useEffect(() => {
     let result = [...data]
 
@@ -53,38 +51,32 @@ export default function ExerciseLibrary() {
     setFiltered(result)
   }, [search, muscle, level, data])
 
-  // save
   const saveData = (newData: any[]) => {
     setData(newData)
     localStorage.setItem('exercises', JSON.stringify(newData))
   }
 
-  // level color
   const levelTag = (l: string) => {
     if (l === 'easy') return <Tag color="green">Dễ</Tag>
     if (l === 'medium') return <Tag color="gold">Trung bình</Tag>
     return <Tag color="red">Khó</Tag>
   }
 
-  // open detail
   const openDetail = (item: any) => {
     setDetail(item)
     setOpen(true)
   }
 
-  // delete
   const handleDelete = (id: number) => {
     saveData(data.filter((e) => e.id !== id))
   }
 
-  // edit
   const handleEdit = (item: any) => {
     setEditing(item)
     form.setFieldsValue(item)
     setFormOpen(true)
   }
 
-  // submit
   const handleSubmit = () => {
     form.validateFields().then((values) => {
       const newItem = {

@@ -38,25 +38,19 @@ export default function Dashboard() {
     setGoals(JSON.parse(localStorage.getItem('goals') || '[]'))
   }, [])
 
-  // =====================
-  // 🔥 1. TỔNG BUỔI TẬP
-  // =====================
+  
   const currentMonth = dayjs().month()
   const totalWorkouts = workouts.filter(
     w => dayjs(w.date).month() === currentMonth
   ).length
 
-  // =====================
-  // 🔥 2. TỔNG CALO
-  // =====================
+ 
   const totalCalories = workouts.reduce(
     (sum, w) => sum + (w.calories || 0),
     0
   )
 
-  // =====================
-  // 🔥 3. STREAK
-  // =====================
+ 
   const getStreak = () => {
     const dates = workouts.map(w =>
       dayjs(w.date).format('YYYY-MM-DD')
@@ -76,18 +70,14 @@ export default function Dashboard() {
     return streak
   }
 
-  // =====================
-  // 🔥 4. GOAL %
-  // =====================
+  
   const goalPercent = () => {
     if (!goals.length) return 0
     const g = goals[0]
     return Math.min((g.current / g.target) * 100, 100)
   }
 
-  // =====================
-  // 📊 BAR CHART (tuần)
-  // =====================
+  
   const getWeeklyData = () => {
     const weeks = [1, 2, 3, 4]
     return weeks.map(week => ({
@@ -102,17 +92,13 @@ export default function Dashboard() {
     }))
   }
 
-  // =====================
-  // 📈 LINE CHART (cân nặng)
-  // =====================
+  
   const weightData = health.map(h => ({
     date: dayjs(h.date).format('DD/MM'),
     weight: h.weight
   }))
 
-  // =====================
-  // ⏱ TIMELINE
-  // =====================
+  
   const latest = [...workouts]
     .sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix())
     .slice(0, 5)

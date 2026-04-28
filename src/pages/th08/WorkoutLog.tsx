@@ -25,19 +25,16 @@ export default function WorkoutLog() {
   const [editing, setEditing] = useState<any>(null)
   const [form] = Form.useForm()
 
-  // filter
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
   const [dateRange, setDateRange] = useState<any>(null)
 
-  // load
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem('workouts') || '[]')
     setData(saved)
     setFiltered(saved)
   }, [])
 
-  // filter logic
   useEffect(() => {
     let result = [...data]
 
@@ -60,13 +57,11 @@ export default function WorkoutLog() {
     setFiltered(result)
   }, [search, typeFilter, dateRange, data])
 
-  // save
   const saveData = (newData: any[]) => {
     setData(newData)
     localStorage.setItem('workouts', JSON.stringify(newData))
   }
 
-  // add/edit
   const handleSubmit = () => {
     form.validateFields().then((values) => {
       const newItem = {
@@ -92,7 +87,6 @@ export default function WorkoutLog() {
     })
   }
 
-  // edit
   const handleEdit = (record: any) => {
     setEditing(record)
     form.setFieldsValue({
@@ -102,13 +96,11 @@ export default function WorkoutLog() {
     setOpen(true)
   }
 
-  // delete
   const handleDelete = (id: number) => {
     const newData = data.filter((item) => item.id !== id)
     saveData(newData)
   }
 
-  // columns
   const columns = [
     {
       title: 'Ngày',
