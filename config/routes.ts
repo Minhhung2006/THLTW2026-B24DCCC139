@@ -42,34 +42,24 @@
 		icon: 'OrderedListOutlined',
 		component: './TodoList',
 	},
-// DANH MUC HE THONG 
-// { 
-//     name: 'DanhMuc', 
-//     path: '/danh-muc', 
-//     icon: 'copy', 
-//     routes: [ 
-//         { 
-//             name: 'ChucVu', 
-//             path: 'chuc-vu', 
-//             component: './DanhMuc/ChucVu', 
-//         }, 
-//     ], 
-// },
+
+	///////////////////////////////////
+	// NOTIFICATION (ĐÃ FIX PATH)
 	{
-	    path: '/notification',
+		path: '/notification',
 		routes: [
 			{
-				path: './subscribe',
+				path: '/notification/subscribe',
 				exact: true,
 				component: './ThongBao/Subscribe',
 			},
 			{
-				path: './check',
+				path: '/notification/check',
 				exact: true,
 				component: './ThongBao/Check',
 			},
 			{
-				path: './',
+				path: '/notification',
 				exact: true,
 				component: './ThongBao/NotifOneSignal',
 			},
@@ -79,41 +69,41 @@
 	},
 
 	///////////////////////////////////
-	// TH07 - BLOG
+	// TH08 - FITNESS APP
 	{
-  		path: '/th07',
-  		name: 'Blog',
-  		icon: 'ReadOutlined',
-  		routes: [
-    		{
-      			path: '/th07/home',
-      			name: 'Trang chủ',
-      			component: './th07/Home',
-    		},
-    		{
-      			path: '/th07/post/:slug',
-      			component: './th07/PostDetail',
-      			hideInMenu: true,
-    		},
-    		{
-      			path: '/th07/about',
-      			name: 'Giới thiệu',
-      			component: './th07/About',
-    		},
-    		{
-      			path: '/th07/manage',
-      			name: 'Quản lý bài viết',
-      			component: './th07/ManagePost',
-    		},
-    		{
-      			path: '/th07/tags',
-      			name: 'Quản lý thẻ',
-      			component: './th07/ManageTag',
-    		},
-    		{
-      			path: '/th07',
-      			redirect: '/th07/home',
-    		},
-  		],
-	}
+		path: '/th08',
+		name: 'Fitness',
+		icon: 'DashboardOutlined',
+		routes: [
+			{
+				path: '/th08/dashboard',
+				name: 'Dashboard',
+				component: './th08/Dashboard',
+			},
+			{
+				path: '/th08/workout',
+				name: 'Nhật ký tập',
+				component: './th08/WorkoutLog',
+			},
+			{
+				path: '/th08/health',
+				name: 'Chỉ số sức khỏe',
+				component: './th08/HealthLog',
+			},
+			{
+				path: '/th08/goals',
+				name: 'Mục tiêu',
+				component: './th08/Goals',
+			},
+			{
+				path: '/th08/exercises',
+				name: 'Thư viện bài tập',
+				component: './th08/ExerciseLibrary',
+			},
+			{
+				path: '/th08',
+				redirect: '/th08/dashboard',
+			},
+		],
+	},
 ];
