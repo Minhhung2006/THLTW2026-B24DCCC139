@@ -44,7 +44,7 @@
 	},
 
 	///////////////////////////////////
-	// NOTIFICATION (ĐÃ FIX PATH)
+	// NOTIFICATION
 	{
 		path: '/notification',
 		routes: [
@@ -69,41 +69,38 @@
 	},
 
 	///////////////////////////////////
-	// TH08 - FITNESS APP
+	// TH09
 	{
-		path: '/th08',
-		name: 'Fitness',
-		icon: 'DashboardOutlined',
+		path: '/th09',
+		name: 'Kanban',
+		icon: 'ProjectOutlined',
 		routes: [
 			{
-				path: '/th08/dashboard',
+				path: '/th09/dashboard',
 				name: 'Dashboard',
-				component: './th08/Dashboard',
+				component: './th09/Dashboard',
 			},
 			{
-				path: '/th08/workout',
-				name: 'Nhật ký tập',
-				component: './th08/WorkoutLog',
+				path: '/th09/board',
+				name: 'Kanban Board',
+				component: './th09/KanbanBoard',
 			},
 			{
-				path: '/th08/health',
-				name: 'Chỉ số sức khỏe',
-				component: './th08/HealthLog',
+				path: '/th09/tasks',
+				name: 'Danh sách task',
+				component: './th09/TaskList', // ✅ FIX Ở ĐÂY
 			},
 			{
-				path: '/th08/goals',
-				name: 'Mục tiêu',
-				component: './th08/Goals',
-			},
-			{
-				path: '/th08/exercises',
-				name: 'Thư viện bài tập',
-				component: './th08/ExerciseLibrary',
-			},
-			{
-				path: '/th08',
-				redirect: '/th08/dashboard',
+				path: '/th09',
+				redirect: '/th09/dashboard',
 			},
 		],
+	},
+
+	///////////////////////////////////
+	// ROOT
+	{
+		path: '/',
+		redirect: '/dashboard',
 	},
 ];
