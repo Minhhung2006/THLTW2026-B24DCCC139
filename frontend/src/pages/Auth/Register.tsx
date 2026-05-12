@@ -24,13 +24,13 @@ export default () => {
         submitter={{ searchConfig: { submitText: 'Đăng ký' } }}
       >
         <ProFormText
-          name="full_name"
+          name="username"
           fieldProps={{
             size: 'large',
             prefix: '👤',
           }}
-          placeholder="Họ và tên"
-          rules={[{ required: true, message: 'Vui lòng nhập họ tên!' }]}
+          placeholder="Tên đăng nhập (Username)"
+          rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập!' }]}
         />
         <ProFormText
           name="email"
@@ -49,6 +49,26 @@ export default () => {
           }}
           placeholder="Mật khẩu"
           rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
+        />
+        <ProFormText.Password
+          name="confirmPassword"
+          fieldProps={{
+            size: 'large',
+            prefix: '🔒',
+          }}
+          placeholder="Xác nhận mật khẩu"
+          dependencies={['password']}
+          rules={[
+            { required: true, message: 'Vui lòng xác nhận mật khẩu!' },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (!value || getFieldValue('password') === value) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(new Error('Mật khẩu xác nhận không khớp!'));
+              },
+            }),
+          ]}
         />
         <div style={{ marginBlockEnd: 24, textAlign: 'center' }}>
           <a onClick={() => history.push('/login')}>Đã có tài khoản? Đăng nhập ngay</a>

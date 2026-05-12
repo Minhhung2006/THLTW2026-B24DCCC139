@@ -17,7 +17,7 @@ export const authController = {
 
       const result = await authService.register({ username, email, password });
       
-      res.status(201).json(result);
+      res.status(201).json({ success: true, data: result, message: "Đăng ký thành công" });
     } catch (error) {
       next(error);
     }
@@ -33,7 +33,7 @@ export const authController = {
       
       const result = await authService.login({ email, password });
       
-      res.json(result);
+      res.json({ success: true, data: result, message: "Đăng nhập thành công" });
     } catch (error) {
       next(error);
     }
@@ -47,7 +47,7 @@ export const authController = {
       
       const user = await authService.getMe(req.user.id);
       
-      res.json(user);
+      res.json({ success: true, data: user });
     } catch (error) {
       next(error);
     }
