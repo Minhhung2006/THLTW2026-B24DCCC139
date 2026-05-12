@@ -11,7 +11,10 @@ dotenv.config();
 import { config } from "./config/env";
 import { errorHandler } from "./middlewares/error.middleware";
 import authRoutes from "./routes/auth.routes";
-
+import tournamentRoutes from "./routes/tournament.routes";
+import registrationRoutes from "./routes/registration.routes";
+import statsRoutes from "./routes/stats.routes";
+import exportRoutes from "./routes/export.routes";
 const app = express();
 
 // ──────────────────────────────────────────────────────────────
@@ -38,9 +41,12 @@ app.get("/health", (req: Request, res: Response) => {
   });
 });
 
-// Auth Routes
+// Routes
 app.use("/api/auth", authRoutes);
-
+app.use("/api/tournaments", tournamentRoutes);
+app.use("/api/registrations", registrationRoutes);
+app.use("/api/stats", statsRoutes);
+app.use("/api/export", exportRoutes);
 // ──────────────────────────────────────────────────────────────
 // Error Handling
 // ──────────────────────────────────────────────────────────────

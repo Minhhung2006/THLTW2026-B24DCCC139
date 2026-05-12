@@ -19,7 +19,7 @@ cd backend
 npm install
 npx prisma generate
 npx prisma db push
-npm run prisma:seed  # Để tạo tài khoản admin mẫu
+npm run prisma:seed  
 npm run dev
 ```
 *Tài khoản admin mẫu: `admin@esports.com` / `Admin@123`*

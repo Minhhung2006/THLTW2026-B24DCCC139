@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,9 +7,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ============================================================
-// ENUMS (MySQL supports native enums)
-// ============================================================
+// ──────────────────────────────────────────────────────────────
+// ENUMS
+// ──────────────────────────────────────────────────────────────
 
 enum Role {
   USER
@@ -20,24 +17,9 @@ enum Role {
 }
 
 enum TournamentStatus {
-  DRAFT
   UPCOMING
   ONGOING
-  COMPLETED
-  CANCELLED
-}
-
-enum MatchStatus {
-  SCHEDULED
-  ONGOING
-  COMPLETED
-  CANCELLED
-}
-
-enum TeamStatus {
-  ACTIVE
-  INACTIVE
-  BANNED
+  FINISHED
 }
 
 enum RegistrationStatus {
@@ -46,146 +28,97 @@ enum RegistrationStatus {
   REJECTED
 }
 
-// ============================================================
+// ──────────────────────────────────────────────────────────────
 // MODELS
-// ============================================================
+// ──────────────────────────────────────────────────────────────
 
 model User {
   id        String   @id @default(cuid())
+  username  String
   email     String   @unique
   password  String
-  fullName  String   @map("full_name")
   role      Role     @default(USER)
   avatar    String?
-  phone     String?
-  isActive  Boolean  @default(true) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  organizedTournaments Tournament[]   @relation("OrganizerTournaments")
-  teamMembers          TeamMember[]
-  notifications        Notification[]
+  tournaments   Tournament[]   @relation("UserTournaments")
+  registrations Registration[]
+  notifications Notification[]
 
   @@map("users")
 }
 
 model Tournament {
-  id                   String           @id @default(cuid())
-  name                 String
-  description          String?          @db.Text
-  game                 String
-  format               String           // single_elimination | double_elimination | round_robin
-  status               TournamentStatus @default(DRAFT)
-  maxTeams             Int              @map("max_teams")
-  prizePool            Float?           @map("prize_pool")
-  startDate            DateTime         @map("start_date")
-  endDate              DateTime         @map("end_date")
-  registrationDeadline DateTime?        @map("registration_deadline")
-  rules                String?          @db.Text
-  coverImage           String?          @map("cover_image")
-  organizerId          String           @map("organizer_id")
-  createdAt            DateTime         @default(now()) @map("created_at")
-  updatedAt            DateTime         @updatedAt @map("updated_at")
+  id          String           @id @default(cuid())
+  name        String
+  game        String
+  description String?          @db.Text
+  startDate   DateTime         @map("start_date")
+  endDate     DateTime         @map("end_date")
+  maxTeams    Int              @map("max_teams")
+  status      TournamentStatus @default(UPCOMING)
+  banner      String?
+  createdById String           @map("created_by_id")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
 
   // Relations
-  organizer     User           @relation("OrganizerTournaments", fields: [organizerId], references: [id])
-  teams         Team[]
-  matches       Match[]
+  createdBy     User           @relation("UserTournaments", fields: [createdById], references: [id])
   registrations Registration[]
-  notifications Notification[]
 
+  @@index([createdById])
+  @@index([status])
   @@map("tournaments")
-}
-
-model Team {
-  id           String     @id @default(cuid())
-  name         String
-  tag          String     // Short team tag e.g. "TSM"
-  logo         String?
-  status       TeamStatus @default(ACTIVE)
-  tournamentId String     @map("tournament_id")
-  createdAt    DateTime   @default(now()) @map("created_at")
-  updatedAt    DateTime   @updatedAt @map("updated_at")
-
-  // Relations
-  tournament    Tournament    @relation(fields: [tournamentId], references: [id])
-  members       TeamMember[]
-  homeMatches   Match[]       @relation("HomeTeam")
-  awayMatches   Match[]       @relation("AwayTeam")
-  registrations Registration[]
-
-  @@map("teams")
-}
-
-model TeamMember {
-  id        String   @id @default(cuid())
-  teamId    String   @map("team_id")
-  userId    String   @map("user_id")
-  isCaptain Boolean  @default(false) @map("is_captain")
-  joinedAt  DateTime @default(now()) @map("joined_at")
-
-  // Relations
-  team      Team     @relation(fields: [teamId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
-
-  @@unique([teamId, userId])
-  @@map("team_members")
-}
-
-model Match {
-  id           String      @id @default(cuid())
-  tournamentId String      @map("tournament_id")
-  homeTeamId   String      @map("home_team_id")
-  awayTeamId   String      @map("away_team_id")
-  homeScore    Int?        @map("home_score")
-  awayScore    Int?        @map("away_score")
-  status       MatchStatus @default(SCHEDULED)
-  round        Int
-  scheduledAt  DateTime?   @map("scheduled_at")
-  completedAt  DateTime?   @map("completed_at")
-  notes        String?
-  createdAt    DateTime    @default(now()) @map("created_at")
-  updatedAt    DateTime    @updatedAt @map("updated_at")
-
-  // Relations
-  tournament   Tournament @relation(fields: [tournamentId], references: [id])
-  homeTeam     Team       @relation("HomeTeam", fields: [homeTeamId], references: [id])
-  awayTeam     Team       @relation("AwayTeam", fields: [awayTeamId], references: [id])
-
-  @@map("matches")
 }
 
 model Registration {
   id           String             @id @default(cuid())
   tournamentId String             @map("tournament_id")
-  teamId       String             @map("team_id")
-  userId       String             @map("user_id")
+  userId       String             @map("user_id") // Người nộp đơn
+  teamName     String             @map("team_name")
   status       RegistrationStatus @default(PENDING)
-  note         String?
-  registeredAt DateTime           @default(now()) @map("registered_at")
-  reviewedAt   DateTime?          @map("reviewed_at")
+  note         String?            @db.Text
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @updatedAt @map("updated_at")
 
   // Relations
-  tournament   Tournament @relation(fields: [tournamentId], references: [id])
-  team         Team       @relation(fields: [teamId], references: [id])
+  tournament Tournament  @relation(fields: [tournamentId], references: [id])
+  user       User        @relation(fields: [userId], references: [id])
+  members    RegMember[]
 
-  @@unique([tournamentId, teamId])
+  @@unique([tournamentId, userId]) // Một user chỉ được nộp 1 đơn cho 1 giải
+  @@index([tournamentId])
+  @@index([userId])
   @@map("registrations")
 }
 
-model Notification {
-  id           String     @id @default(cuid())
-  userId       String     @map("user_id")
-  tournamentId String?    @map("tournament_id")
-  title        String
-  message      String     @db.Text
-  isRead       Boolean    @default(false) @map("is_read")
-  createdAt    DateTime   @default(now()) @map("created_at")
+model RegMember {
+  id             String       @id @default(cuid())
+  registrationId String       @map("registration_id")
+  memberName     String       @map("member_name")
+  gameId         String       @map("game_id")
 
   // Relations
-  user         User        @relation(fields: [userId], references: [id])
-  tournament   Tournament? @relation(fields: [tournamentId], references: [id])
+  registration Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
 
+  @@index([registrationId])
+  @@map("reg_members")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  title     String
+  message   String   @db.Text
+  isRead    Boolean  @default(false) @map("is_read")
+  type      String?  // e.g., "REGISTRATION_UPDATE", "SYSTEM"
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
   @@map("notifications")
 }

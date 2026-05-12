@@ -1,22 +1,11 @@
 import { Router } from "express";
-import {
-  register,
-  login,
-  getMe,
-  updateMe,
-  changePassword,
-} from "../controllers/auth.controller";
-import { authenticate } from "../middlewares/auth.middleware";
+import { authController } from "../controllers/auth.controller";
+import { authMiddleware } from "../middlewares/auth.middleware";
 
 const router = Router();
 
-// ── Public routes ─────────────────────────────────────────────
-router.post("/register", register);
-router.post("/login", login);
-
-// ── Protected routes ──────────────────────────────────────────
-router.get("/me", authenticate, getMe);
-router.put("/me", authenticate, updateMe);
-router.post("/change-password", authenticate, changePassword);
+router.post("/register", authController.register);
+router.post("/login", authController.login);
+router.get("/me", authMiddleware, authController.getMe);
 
 export default router;
