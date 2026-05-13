@@ -1,9 +1,9 @@
-import { PageContainer } from '@ant-design/pro-components';
+import { Card } from "antd";
 
 export default function Dashboard() {
   return (
-    <PageContainer title="Admin Dashboard">
-      <div>Thống kê giải đấu</div>
-    </PageContainer>
+    <Card>
+      <h1>Thống kê giải đấu</h1>
+    </Card>
   );
 }
