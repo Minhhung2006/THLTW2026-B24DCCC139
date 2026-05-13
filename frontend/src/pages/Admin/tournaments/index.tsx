@@ -17,6 +17,11 @@ import {
   useEffect,
 } from "react";
 
+import * as XLSX from "xlsx";
+
+import { saveAs }
+from "file-saver";
+
 import CreateTournamentModal from "@/components/tournament/CreateTournamentModal";
 
 import EditTournamentModal from "@/components/tournament/EditTournamentModal";
@@ -173,24 +178,6 @@ export default function AdminTournaments() {
       }
     };
 
-  const getStatusColor = (
-    status: string
-  ) => {
-    switch (status) {
-      case "UPCOMING":
-        return "blue";
-
-      case "ONGOING":
-        return "green";
-
-      case "FINISHED":
-        return "red";
-
-      default:
-        return "default";
-    }
-  };
-
   const filteredData =
     tournaments.filter((item) => {
       const matchName =
@@ -211,30 +198,123 @@ export default function AdminTournaments() {
       );
     });
 
+  const handleExportExcel =
+    () => {
+      const exportData =
+        tournaments.map(
+          (item) => ({
+            "Tên giải đấu":
+              item.name,
+
+            Game:
+              item.game,
+
+            "Trạng thái":
+              item.status,
+          })
+        );
+
+      const worksheet =
+        XLSX.utils.json_to_sheet(
+          exportData
+        );
+
+      const workbook =
+        XLSX.utils.book_new();
+
+      XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        "Tournaments"
+      );
+
+      const excelBuffer =
+        XLSX.write(
+          workbook,
+          {
+            bookType: "xlsx",
+            type: "array",
+          }
+        );
+
+      const fileData =
+        new Blob(
+          [excelBuffer],
+          {
+            type:
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+          }
+        );
+
+      saveAs(
+        fileData,
+        "tournaments.xlsx"
+      );
+    };
+
   const columns = [
     {
       title: "Tên giải đấu",
       dataIndex: "name",
+
+      sorter: (
+        a: any,
+        b: any
+      ) =>
+        a.name.localeCompare(
+          b.name
+        ),
     },
 
     {
       title: "Game",
       dataIndex: "game",
+
+      sorter: (
+        a: any,
+        b: any
+      ) =>
+        a.game.localeCompare(
+          b.game
+        ),
     },
 
     {
       title: "Trạng thái",
       dataIndex: "status",
 
-      render: (status: string) => (
-        <Tag
-          color={getStatusColor(
-            status
-          )}
-        >
-          {status}
-        </Tag>
-      ),
+      render: (status: string) => {
+        const statusMap: any = {
+          UPCOMING: {
+            color: "blue",
+            text: "Sắp diễn ra",
+          },
+
+          ONGOING: {
+            color: "green",
+            text: "Đang diễn ra",
+          },
+
+          FINISHED: {
+            color: "red",
+            text: "Đã kết thúc",
+          },
+        };
+
+        return (
+          <Tag
+            color={
+              statusMap[status]
+                ?.color
+            }
+          >
+            {
+              statusMap[status]
+                ?.text
+            }
+          </Tag>
+        );
+      },
     },
 
     {
@@ -293,14 +373,24 @@ export default function AdminTournaments() {
       <Card
         title="Quản lý giải đấu"
         extra={
-          <Button
-            type="primary"
-            onClick={() =>
-              setOpen(true)
-            }
-          >
-            Tạo giải đấu
-          </Button>
+          <Space>
+            <Button
+              onClick={
+                handleExportExcel
+              }
+            >
+              Xuất Excel
+            </Button>
+
+            <Button
+              type="primary"
+              onClick={() =>
+                setOpen(true)
+              }
+            >
+              Tạo giải đấu
+            </Button>
+          </Space>
         }
       >
         <div
