@@ -5,15 +5,34 @@ import {
   Space,
   Tag,
   message,
+  Input,
+  Select,
 } from "antd";
 
 import { useState } from "react";
 
 import CreateTournamentModal from "@/components/tournament/CreateTournamentModal";
 
+import EditTournamentModal from "@/components/tournament/EditTournamentModal";
+
 export default function AdminTournaments() {
   const [open, setOpen] =
     useState(false);
+
+  const [editOpen, setEditOpen] =
+    useState(false);
+
+  const [selectedTournament,
+    setSelectedTournament] =
+    useState<any>(null);
+
+  const [searchText,
+    setSearchText] =
+    useState("");
+
+  const [statusFilter,
+    setStatusFilter] =
+    useState("");
 
   const [tournaments, setTournaments] =
     useState([
@@ -30,6 +49,13 @@ export default function AdminTournaments() {
         name: "LoL Spring Cup",
         game: "League of Legends",
         status: "ONGOING",
+      },
+
+      {
+        id: 3,
+        name: "CS2 Major Cup",
+        game: "CS2",
+        status: "FINISHED",
       },
     ]);
 
@@ -62,6 +88,43 @@ export default function AdminTournaments() {
     ]);
   };
 
+  const handleEdit = (
+    tournament: any
+  ) => {
+    setSelectedTournament(
+      tournament
+    );
+
+    setEditOpen(true);
+  };
+
+  const handleUpdate = (
+    values: any
+  ) => {
+    const updated =
+      tournaments.map((item) => {
+        if (
+          item.id ===
+          selectedTournament.id
+        ) {
+          return {
+            ...item,
+            ...values,
+          };
+        }
+
+        return item;
+      });
+
+    setTournaments(updated);
+
+    setEditOpen(false);
+
+    message.success(
+      "Cập nhật giải đấu thành công"
+    );
+  };
+
   const getStatusColor = (
     status: string
   ) => {
@@ -79,6 +142,26 @@ export default function AdminTournaments() {
         return "default";
     }
   };
+
+  const filteredData =
+    tournaments.filter((item) => {
+      const matchName =
+        item.name
+          .toLowerCase()
+          .includes(
+            searchText.toLowerCase()
+          );
+
+      const matchStatus =
+        statusFilter
+          ? item.status ===
+            statusFilter
+          : true;
+
+      return (
+        matchName && matchStatus
+      );
+    });
 
   const columns = [
     {
@@ -111,7 +194,12 @@ export default function AdminTournaments() {
 
       render: (_: any, record: any) => (
         <Space>
-          <Button type="primary">
+          <Button
+            type="primary"
+            onClick={() =>
+              handleEdit(record)
+            }
+          >
             Sửa
           </Button>
 
@@ -143,10 +231,51 @@ export default function AdminTournaments() {
           </Button>
         }
       >
+        <div
+          style={{
+            display: "flex",
+            gap: 16,
+            marginBottom: 16,
+          }}
+        >
+          <Input
+            placeholder="Tìm giải đấu..."
+            value={searchText}
+            onChange={(e) =>
+              setSearchText(
+                e.target.value
+              )
+            }
+          />
+
+          <Select
+            placeholder="Lọc trạng thái"
+            style={{ width: 200 }}
+            allowClear
+            onChange={(value) =>
+              setStatusFilter(
+                value || ""
+              )
+            }
+          >
+            <Select.Option value="UPCOMING">
+              UPCOMING
+            </Select.Option>
+
+            <Select.Option value="ONGOING">
+              ONGOING
+            </Select.Option>
+
+            <Select.Option value="FINISHED">
+              FINISHED
+            </Select.Option>
+          </Select>
+        </div>
+
         <Table
           rowKey="id"
           columns={columns}
-          dataSource={tournaments}
+          dataSource={filteredData}
         />
 
         <CreateTournamentModal
@@ -155,6 +284,17 @@ export default function AdminTournaments() {
             setOpen(false)
           }
           onCreate={handleCreate}
+        />
+
+        <EditTournamentModal
+          open={editOpen}
+          onClose={() =>
+            setEditOpen(false)
+          }
+          tournament={
+            selectedTournament
+          }
+          onUpdate={handleUpdate}
         />
       </Card>
     </div>
