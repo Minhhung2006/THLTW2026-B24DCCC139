@@ -28,6 +28,8 @@ import EditTournamentModal from "@/components/tournament/EditTournamentModal";
 
 import TournamentStats from "@/components/dashboard/TournamentStats";
 
+import TournamentPieChart from "@/components/dashboard/TournamentPieChart";
+
 import {
   getTournaments,
   createTournament,
@@ -367,6 +369,10 @@ export default function AdminTournaments() {
   return (
     <div style={{ padding: 24 }}>
       <TournamentStats
+        tournaments={tournaments}
+      />
+
+      <TournamentPieChart
         tournaments={tournaments}
       />
 
