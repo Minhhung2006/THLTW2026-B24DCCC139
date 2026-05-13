@@ -72,7 +72,7 @@ export default function CreateTournamentModal({
             },
           ]}
         >
-          <Input />
+          <Input placeholder="Nhập tên giải đấu" />
         </Form.Item>
 
         <Form.Item
@@ -85,7 +85,7 @@ export default function CreateTournamentModal({
             },
           ]}
         >
-          <Select>
+          <Select placeholder="Chọn game">
             <Option value="Valorant">
               Valorant
             </Option>
@@ -111,7 +111,7 @@ export default function CreateTournamentModal({
             },
           ]}
         >
-          <Select>
+          <Select placeholder="Chọn trạng thái">
             <Option value="UPCOMING">
               UPCOMING
             </Option>

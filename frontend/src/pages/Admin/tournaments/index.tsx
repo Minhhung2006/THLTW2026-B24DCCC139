@@ -276,6 +276,10 @@ export default function AdminTournaments() {
           rowKey="id"
           columns={columns}
           dataSource={filteredData}
+          pagination={{
+            pageSize: 5,
+            showSizeChanger: false,
+          }}
         />
 
         <CreateTournamentModal
