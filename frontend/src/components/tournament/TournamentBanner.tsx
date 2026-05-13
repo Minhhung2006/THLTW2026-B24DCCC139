@@ -1,6 +1,10 @@
-import { Tag, Typography } from "antd";
+import {
+  Tag,
+  Typography,
+} from "antd";
 
-const { Title, Paragraph } = Typography;
+const { Title, Paragraph } =
+  Typography;
 
 interface Props {
   tournament: any;
@@ -9,6 +13,24 @@ interface Props {
 export default function TournamentBanner({
   tournament,
 }: Props) {
+  const getStatusColor = (
+    status: string
+  ) => {
+    switch (status) {
+      case "UPCOMING":
+        return "blue";
+
+      case "ONGOING":
+        return "green";
+
+      case "FINISHED":
+        return "red";
+
+      default:
+        return "default";
+    }
+  };
+
   return (
     <>
       <img
@@ -26,11 +48,15 @@ export default function TournamentBanner({
       </Title>
 
       <div style={{ marginBottom: 16 }}>
-        <Tag color="blue">
+        <Tag color="purple">
           {tournament.game}
         </Tag>
 
-        <Tag color="green">
+        <Tag
+          color={getStatusColor(
+            tournament.status
+          )}
+        >
           {tournament.status}
         </Tag>
       </div>

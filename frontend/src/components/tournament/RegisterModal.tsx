@@ -6,6 +6,10 @@ import {
   message,
 } from "antd";
 
+import { useState } from "react";
+
+import { registerTournament } from "@/services/tournament.service";
+
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -17,22 +21,32 @@ export default function RegisterModal({
 }: Props) {
   const [form] = Form.useForm();
 
+  const [loading, setLoading] =
+    useState(false);
+
   const handleSubmit = async () => {
     try {
+      setLoading(true);
+
       const values =
         await form.validateFields();
 
-      console.log(values);
+      const response =
+        await registerTournament(values);
 
-      message.success(
-        "Đăng ký thành công!"
-      );
+      message.success(response.message);
 
       form.resetFields();
 
       onClose();
     } catch (error) {
       console.log(error);
+
+      message.error(
+        "Đăng ký thất bại!"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -43,7 +57,10 @@ export default function RegisterModal({
       onCancel={onClose}
       footer={null}
     >
-      <Form form={form} layout="vertical">
+      <Form
+        form={form}
+        layout="vertical"
+      >
         <Form.Item
           label="Tên đội"
           name="teamName"
@@ -54,25 +71,27 @@ export default function RegisterModal({
             },
           ]}
         >
-          <Input />
+          <Input placeholder="Nhập tên đội" />
         </Form.Item>
 
         <Form.Item
-          label="Liên hệ"
+          label="Thông tin liên hệ"
           name="contact"
           rules={[
             {
               required: true,
-              message: "Nhập liên hệ",
+              message:
+                "Nhập thông tin liên hệ",
             },
           ]}
         >
-          <Input />
+          <Input placeholder="Email hoặc số điện thoại" />
         </Form.Item>
 
         <Button
           type="primary"
           block
+          loading={loading}
           onClick={handleSubmit}
         >
           Xác nhận đăng ký
