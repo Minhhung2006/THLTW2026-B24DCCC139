@@ -9,7 +9,12 @@ import {
 
 import { useState } from "react";
 
+import CreateTournamentModal from "@/components/tournament/CreateTournamentModal";
+
 export default function AdminTournaments() {
+  const [open, setOpen] =
+    useState(false);
+
   const [tournaments, setTournaments] =
     useState([
       {
@@ -43,6 +48,38 @@ export default function AdminTournaments() {
     );
   };
 
+  const handleCreate = (
+    values: any
+  ) => {
+    const newTournament = {
+      id: Date.now(),
+      ...values,
+    };
+
+    setTournaments([
+      ...tournaments,
+      newTournament,
+    ]);
+  };
+
+  const getStatusColor = (
+    status: string
+  ) => {
+    switch (status) {
+      case "UPCOMING":
+        return "blue";
+
+      case "ONGOING":
+        return "green";
+
+      case "FINISHED":
+        return "red";
+
+      default:
+        return "default";
+    }
+  };
+
   const columns = [
     {
       title: "Tên giải đấu",
@@ -59,7 +96,11 @@ export default function AdminTournaments() {
       dataIndex: "status",
 
       render: (status: string) => (
-        <Tag color="blue">
+        <Tag
+          color={getStatusColor(
+            status
+          )}
+        >
           {status}
         </Tag>
       ),
@@ -92,7 +133,12 @@ export default function AdminTournaments() {
       <Card
         title="Quản lý giải đấu"
         extra={
-          <Button type="primary">
+          <Button
+            type="primary"
+            onClick={() =>
+              setOpen(true)
+            }
+          >
             Tạo giải đấu
           </Button>
         }
@@ -101,6 +147,14 @@ export default function AdminTournaments() {
           rowKey="id"
           columns={columns}
           dataSource={tournaments}
+        />
+
+        <CreateTournamentModal
+          open={open}
+          onClose={() =>
+            setOpen(false)
+          }
+          onCreate={handleCreate}
         />
       </Card>
     </div>
