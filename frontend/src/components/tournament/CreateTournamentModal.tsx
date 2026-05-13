@@ -2,58 +2,49 @@ import {
   Modal,
   Form,
   Input,
-  Button,
   Select,
-  message,
+  Button,
 } from "antd";
-
-import { useState } from "react";
-
-const { Option } = Select;
 
 interface Props {
   open: boolean;
+
   onClose: () => void;
-  onCreate: (values: any) => void;
+
+  onCreate: (
+    values: any
+  ) => void;
+
+  loading?: boolean;
 }
 
 export default function CreateTournamentModal({
   open,
   onClose,
   onCreate,
+  loading,
 }: Props) {
-  const [form] = Form.useForm();
+  const [form] =
+    Form.useForm();
 
-  const [loading, setLoading] =
-    useState(false);
+  const handleSubmit =
+    async () => {
+      try {
+        const values =
+          await form.validateFields();
 
-  const handleSubmit = async () => {
-    try {
-      setLoading(true);
+        await onCreate(values);
 
-      const values =
-        await form.validateFields();
-
-      onCreate(values);
-
-      message.success(
-        "Tạo giải đấu thành công"
-      );
-
-      form.resetFields();
-
-      onClose();
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+        form.resetFields();
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
   return (
     <Modal
-      title="Tạo giải đấu"
       open={open}
+      title="Tạo giải đấu"
       onCancel={onClose}
       footer={null}
     >
@@ -68,11 +59,11 @@ export default function CreateTournamentModal({
             {
               required: true,
               message:
-                "Nhập tên giải đấu",
+                "Vui lòng nhập tên giải đấu",
             },
           ]}
         >
-          <Input placeholder="Nhập tên giải đấu" />
+          <Input />
         </Form.Item>
 
         <Form.Item
@@ -81,23 +72,12 @@ export default function CreateTournamentModal({
           rules={[
             {
               required: true,
-              message: "Chọn game",
+              message:
+                "Vui lòng nhập tên game",
             },
           ]}
         >
-          <Select placeholder="Chọn game">
-            <Option value="Valorant">
-              Valorant
-            </Option>
-
-            <Option value="League of Legends">
-              League of Legends
-            </Option>
-
-            <Option value="CS2">
-              CS2
-            </Option>
-          </Select>
+          <Input />
         </Form.Item>
 
         <Form.Item
@@ -107,22 +87,22 @@ export default function CreateTournamentModal({
             {
               required: true,
               message:
-                "Chọn trạng thái",
+                "Vui lòng chọn trạng thái",
             },
           ]}
         >
-          <Select placeholder="Chọn trạng thái">
-            <Option value="UPCOMING">
+          <Select>
+            <Select.Option value="UPCOMING">
               UPCOMING
-            </Option>
+            </Select.Option>
 
-            <Option value="ONGOING">
+            <Select.Option value="ONGOING">
               ONGOING
-            </Option>
+            </Select.Option>
 
-            <Option value="FINISHED">
+            <Select.Option value="FINISHED">
               FINISHED
-            </Option>
+            </Select.Option>
           </Select>
         </Form.Item>
 

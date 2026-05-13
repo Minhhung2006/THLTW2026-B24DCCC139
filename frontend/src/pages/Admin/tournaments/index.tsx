@@ -7,13 +7,28 @@ import {
   message,
   Input,
   Select,
+  Spin,
+  Popconfirm,
+  Empty,
 } from "antd";
 
-import { useState } from "react";
+import {
+  useState,
+  useEffect,
+} from "react";
 
 import CreateTournamentModal from "@/components/tournament/CreateTournamentModal";
 
 import EditTournamentModal from "@/components/tournament/EditTournamentModal";
+
+import TournamentStats from "@/components/dashboard/TournamentStats";
+
+import {
+  getTournaments,
+  createTournament,
+  updateTournament,
+  deleteTournament,
+} from "@/services/adminTournament.service";
 
 export default function AdminTournaments() {
   const [open, setOpen] =
@@ -34,59 +49,91 @@ export default function AdminTournaments() {
     setStatusFilter] =
     useState("");
 
+  const [loading, setLoading] =
+    useState(false);
+
+  const [createLoading,
+    setCreateLoading] =
+    useState(false);
+
+  const [updateLoading,
+    setUpdateLoading] =
+    useState(false);
+
   const [tournaments, setTournaments] =
-    useState([
-      {
-        id: 1,
-        name:
-          "Valorant Champions 2026",
-        game: "Valorant",
-        status: "UPCOMING",
-      },
+    useState<any[]>([]);
 
-      {
-        id: 2,
-        name: "LoL Spring Cup",
-        game: "League of Legends",
-        status: "ONGOING",
-      },
+  const fetchTournaments =
+    async () => {
+      try {
+        setLoading(true);
 
-      {
-        id: 3,
-        name: "CS2 Major Cup",
-        game: "CS2",
-        status: "FINISHED",
-      },
-    ]);
+        const data =
+          await getTournaments();
 
-  const handleDelete = (
-    id: number
-  ) => {
-    const filtered =
-      tournaments.filter(
-        (item) => item.id !== id
-      );
+        setTournaments(data);
+      } catch (error) {
+        console.log(error);
 
-    setTournaments(filtered);
-
-    message.success(
-      "Xóa giải đấu thành công"
-    );
-  };
-
-  const handleCreate = (
-    values: any
-  ) => {
-    const newTournament = {
-      id: Date.now(),
-      ...values,
+        message.error(
+          "Lỗi tải dữ liệu"
+        );
+      } finally {
+        setLoading(false);
+      }
     };
 
-    setTournaments([
-      ...tournaments,
-      newTournament,
-    ]);
-  };
+  useEffect(() => {
+    fetchTournaments();
+  }, []);
+
+  const handleDelete =
+    async (id: number) => {
+      try {
+        await deleteTournament(
+          id
+        );
+
+        message.success(
+          "Xóa thành công"
+        );
+
+        fetchTournaments();
+      } catch (error) {
+        console.log(error);
+
+        message.error(
+          "Xóa thất bại"
+        );
+      }
+    };
+
+  const handleCreate =
+    async (values: any) => {
+      try {
+        setCreateLoading(true);
+
+        await createTournament(
+          values
+        );
+
+        message.success(
+          "Tạo giải đấu thành công"
+        );
+
+        setOpen(false);
+
+        fetchTournaments();
+      } catch (error) {
+        console.log(error);
+
+        message.error(
+          "Tạo giải đấu thất bại"
+        );
+      } finally {
+        setCreateLoading(false);
+      }
+    };
 
   const handleEdit = (
     tournament: any
@@ -98,32 +145,33 @@ export default function AdminTournaments() {
     setEditOpen(true);
   };
 
-  const handleUpdate = (
-    values: any
-  ) => {
-    const updated =
-      tournaments.map((item) => {
-        if (
-          item.id ===
-          selectedTournament.id
-        ) {
-          return {
-            ...item,
-            ...values,
-          };
-        }
+  const handleUpdate =
+    async (values: any) => {
+      try {
+        setUpdateLoading(true);
 
-        return item;
-      });
+        await updateTournament(
+          selectedTournament.id,
+          values
+        );
 
-    setTournaments(updated);
+        message.success(
+          "Cập nhật thành công"
+        );
 
-    setEditOpen(false);
+        setEditOpen(false);
 
-    message.success(
-      "Cập nhật giải đấu thành công"
-    );
-  };
+        fetchTournaments();
+      } catch (error) {
+        console.log(error);
+
+        message.error(
+          "Cập nhật thất bại"
+        );
+      } finally {
+        setUpdateLoading(false);
+      }
+    };
 
   const getStatusColor = (
     status: string
@@ -147,7 +195,7 @@ export default function AdminTournaments() {
     tournaments.filter((item) => {
       const matchName =
         item.name
-          .toLowerCase()
+          ?.toLowerCase()
           .includes(
             searchText.toLowerCase()
           );
@@ -203,21 +251,45 @@ export default function AdminTournaments() {
             Sửa
           </Button>
 
-          <Button
-            danger
-            onClick={() =>
+          <Popconfirm
+            title="Xóa giải đấu"
+            description="Bạn có chắc muốn xóa giải đấu này?"
+            okText="Xóa"
+            cancelText="Hủy"
+            onConfirm={() =>
               handleDelete(record.id)
             }
           >
-            Xóa
-          </Button>
+            <Button danger>
+              Xóa
+            </Button>
+          </Popconfirm>
         </Space>
       ),
     },
   ];
 
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent:
+            "center",
+          marginTop: 100,
+        }}
+      >
+        <Spin size="large" />
+      </div>
+    );
+  }
+
   return (
     <div style={{ padding: 24 }}>
+      <TournamentStats
+        tournaments={tournaments}
+      />
+
       <Card
         title="Quản lý giải đấu"
         extra={
@@ -236,11 +308,13 @@ export default function AdminTournaments() {
             display: "flex",
             gap: 16,
             marginBottom: 16,
+            flexWrap: "wrap",
           }}
         >
           <Input
             placeholder="Tìm giải đấu..."
             value={searchText}
+            style={{ width: 250 }}
             onChange={(e) =>
               setSearchText(
                 e.target.value
@@ -276,9 +350,17 @@ export default function AdminTournaments() {
           rowKey="id"
           columns={columns}
           dataSource={filteredData}
+          scroll={{ x: 800 }}
           pagination={{
             pageSize: 5,
             showSizeChanger: false,
+          }}
+          locale={{
+            emptyText: (
+              <Empty
+                description="Không có giải đấu nào"
+              />
+            ),
           }}
         />
 
@@ -288,6 +370,7 @@ export default function AdminTournaments() {
             setOpen(false)
           }
           onCreate={handleCreate}
+          loading={createLoading}
         />
 
         <EditTournamentModal
@@ -299,6 +382,7 @@ export default function AdminTournaments() {
             selectedTournament
           }
           onUpdate={handleUpdate}
+          loading={updateLoading}
         />
       </Card>
     </div>

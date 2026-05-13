@@ -2,23 +2,26 @@ import {
   Modal,
   Form,
   Input,
-  Button,
   Select,
-  message,
+  Button,
 } from "antd";
 
 import {
   useEffect,
-  useState,
 } from "react";
-
-const { Option } = Select;
 
 interface Props {
   open: boolean;
+
   onClose: () => void;
+
   tournament: any;
-  onUpdate: (values: any) => void;
+
+  onUpdate: (
+    values: any
+  ) => void;
+
+  loading?: boolean;
 }
 
 export default function EditTournamentModal({
@@ -26,45 +29,37 @@ export default function EditTournamentModal({
   onClose,
   tournament,
   onUpdate,
+  loading,
 }: Props) {
-  const [form] = Form.useForm();
-
-  const [loading, setLoading] =
-    useState(false);
+  const [form] =
+    Form.useForm();
 
   useEffect(() => {
     if (tournament) {
-      form.setFieldsValue(
-        tournament
-      );
+      form.setFieldsValue({
+        name: tournament.name,
+        game: tournament.game,
+        status: tournament.status,
+      });
     }
   }, [tournament]);
 
-  const handleSubmit = async () => {
-    try {
-      setLoading(true);
+  const handleSubmit =
+    async () => {
+      try {
+        const values =
+          await form.validateFields();
 
-      const values =
-        await form.validateFields();
-
-      onUpdate(values);
-
-      message.success(
-        "Cập nhật giải đấu thành công"
-      );
-
-      onClose();
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+        await onUpdate(values);
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
   return (
     <Modal
-      title="Chỉnh sửa giải đấu"
       open={open}
+      title="Chỉnh sửa giải đấu"
       onCancel={onClose}
       footer={null}
     >
@@ -79,11 +74,11 @@ export default function EditTournamentModal({
             {
               required: true,
               message:
-                "Nhập tên giải đấu",
+                "Vui lòng nhập tên giải đấu",
             },
           ]}
         >
-          <Input placeholder="Nhập tên giải đấu" />
+          <Input />
         </Form.Item>
 
         <Form.Item
@@ -92,23 +87,12 @@ export default function EditTournamentModal({
           rules={[
             {
               required: true,
-              message: "Chọn game",
+              message:
+                "Vui lòng nhập tên game",
             },
           ]}
         >
-          <Select placeholder="Chọn game">
-            <Option value="Valorant">
-              Valorant
-            </Option>
-
-            <Option value="League of Legends">
-              League of Legends
-            </Option>
-
-            <Option value="CS2">
-              CS2
-            </Option>
-          </Select>
+          <Input />
         </Form.Item>
 
         <Form.Item
@@ -118,22 +102,22 @@ export default function EditTournamentModal({
             {
               required: true,
               message:
-                "Chọn trạng thái",
+                "Vui lòng chọn trạng thái",
             },
           ]}
         >
-          <Select placeholder="Chọn trạng thái">
-            <Option value="UPCOMING">
+          <Select>
+            <Select.Option value="UPCOMING">
               UPCOMING
-            </Option>
+            </Select.Option>
 
-            <Option value="ONGOING">
+            <Select.Option value="ONGOING">
               ONGOING
-            </Option>
+            </Select.Option>
 
-            <Option value="FINISHED">
+            <Select.Option value="FINISHED">
               FINISHED
-            </Option>
+            </Select.Option>
           </Select>
         </Form.Item>
 
@@ -143,7 +127,7 @@ export default function EditTournamentModal({
           loading={loading}
           onClick={handleSubmit}
         >
-          Cập nhật
+          Cập nhật giải đấu
         </Button>
       </Form>
     </Modal>
