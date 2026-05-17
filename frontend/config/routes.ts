@@ -1,5 +1,6 @@
 export default [
   { path: '/', component: 'index', name: 'Trang chủ' },
+  { path: '/tournaments', component: 'TourmentList', name: 'Giải đấu' },
   { path: '/login', component: 'Auth/Login', layout: false },
   { path: '/register', component: 'Auth/Register', layout: false },
   {
