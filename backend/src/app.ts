@@ -17,9 +17,9 @@ import statsRoutes from "./routes/stats.routes";
 import exportRoutes from "./routes/export.routes";
 const app = express();
 
-// ──────────────────────────────────────────────────────────────
+
 // Middlewares
-// ──────────────────────────────────────────────────────────────
+
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(cors({ origin: config.cors.origin }));
