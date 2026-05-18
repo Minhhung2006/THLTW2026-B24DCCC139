@@ -19,5 +19,5 @@
     "src/**/*",
     "src/.umi/**/*",
     "config/**/*"
-  ]
+, "src/pages/tournaments/.tsx"  ]
 }

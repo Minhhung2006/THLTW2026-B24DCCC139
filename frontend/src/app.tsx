@@ -9,9 +9,7 @@ export async function getInitialState(): Promise<{
   const token = localStorage.getItem('token');
 
   if (token) {
-    const user = JSON.parse(
-      localStorage.getItem('user') || '{}',
-    );
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
 
     return {
       name: user.full_name || 'User',
@@ -33,12 +31,17 @@ export const layout = ({
 }) => {
   return {
     // Logo hệ thống
-    logo:
-      'https://static.vecteezy.com/system/resources/thumbnails/017/068/883/small/dark-ninja-mascot-logo-for-team-esport-gaming-vector.jpg',
+    logo: 'https://static.vecteezy.com/system/resources/thumbnails/017/068/883/small/dark-ninja-mascot-logo-for-team-esport-gaming-vector.jpg',
+
+    title: 'Esport Tournament',
 
     // Tắt đa ngôn ngữ menu
     menu: {
       locale: false,
+    },
+
+    avatarProps: {
+      title: initialState?.name || 'Guest',
     },
 
     // --- THÊM DÒNG NÀY ĐỂ HIỆN CHUÔNG ---
