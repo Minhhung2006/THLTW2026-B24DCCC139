@@ -20,7 +20,7 @@ import RegisterModal from "@/components/tournament/RegisterModal";
 
 import TournamentTeams from "@/components/tournament/TournamentTeams";
 
-import { getTournamentById } from "@/services/tournament.service";
+import { getTournamentById, getMyRegistrations } from "@/services/tournament.service";
 
 import TournamentMatches from "@/components/tournament/TournamentMatches";
 
@@ -36,35 +36,10 @@ export default function TournamentDetail() {
   const [tournament, setTournament] =
     useState<any>(null);
 
-  // Fake teams
-  const teams = [
-    {
-      id: 1,
-      name: "Team Flash",
-      captain: "Hưng",
-      rank: "Diamond",
-      logo:
-        "https://cdn-icons-png.flaticon.com/512/5968/5968705.png",
-    },
+  const [isRegistered, setIsRegistered] = useState(false);
 
-    {
-      id: 2,
-      name: "SBTC Esports",
-      captain: "Minh",
-      rank: "Immortal",
-      logo:
-        "https://cdn-icons-png.flaticon.com/512/5968/5968705.png",
-    },
-
-    {
-      id: 3,
-      name: "DivisionX",
-      captain: "Long",
-      rank: "Ascendant",
-      logo:
-        "https://cdn-icons-png.flaticon.com/512/5968/5968705.png",
-    },
-  ];
+  const userStr = localStorage.getItem('user');
+  const user = userStr ? JSON.parse(userStr) : null;
 
   const fetchTournament =
     async () => {
@@ -77,12 +52,23 @@ export default function TournamentDetail() {
           );
 
         setTournament(data);
+
+        if (user && user.role === 'USER') {
+          const myRegs = await getMyRegistrations();
+          const registered = myRegs.some((reg: any) => reg.tournamentId === params.id);
+          setIsRegistered(registered);
+        }
       } catch (error) {
         console.log(error);
       } finally {
         setLoading(false);
       }
     };
+
+  const handleRegisterSuccess = () => {
+    setIsRegistered(true);
+    fetchTournament(); // Refresh tournament data (like approved count if needed)
+  };
 
   useEffect(() => {
     fetchTournament();
@@ -102,6 +88,14 @@ export default function TournamentDetail() {
     );
   }
 
+  const approvedTeams = tournament?.registrations?.map((reg: any) => ({
+    id: reg.id,
+    name: reg.teamName,
+    captain: reg.user?.username || "N/A",
+    rank: "Unranked",
+    logo: reg.teamLogo || "https://cdn-icons-png.flaticon.com/512/5968/5968705.png",
+  })) || [];
+
   return (
     <div style={{ padding: 24 }}>
       <Row gutter={[24, 24]}>
@@ -113,7 +107,7 @@ export default function TournamentDetail() {
           </Card>
 
           <TournamentTeams
-            teams={teams}
+            teams={approvedTeams}
           />
         </Col>
 
@@ -123,6 +117,8 @@ export default function TournamentDetail() {
             onRegister={() =>
               setOpen(true)
             }
+            user={user}
+            isRegistered={isRegistered}
           />
         </Col>
       </Row>
@@ -132,6 +128,8 @@ export default function TournamentDetail() {
         onClose={() =>
           setOpen(false)
         }
+        tournamentId={params.id || ""}
+        onSuccess={handleRegisterSuccess}
       />
     </div>
   );

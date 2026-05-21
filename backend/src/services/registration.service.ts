@@ -12,12 +12,13 @@ interface MemberInput {
 interface CreateRegistrationDto {
   tournamentId: string;
   teamName: string;
+  teamLogo?: string;
   members: MemberInput[];
 }
 
 export const registrationService = {
   async createRegistration(userId: string, data: CreateRegistrationDto) {
-    const { tournamentId, teamName, members } = data;
+    const { tournamentId, teamName, teamLogo, members } = data;
 
     // 1. Kiểm tra tournament tồn tại và UPCOMING
     const tournament = await prisma.tournament.findUnique({
@@ -54,6 +55,7 @@ export const registrationService = {
           tournamentId,
           userId,
           teamName,
+          teamLogo,
           status: RegistrationStatus.PENDING,
           members: {
             create: members.map(m => ({ memberName: m.memberName, gameId: m.gameId }))
@@ -61,6 +63,27 @@ export const registrationService = {
         },
         include: { members: true }
       });
+
+      // Notification cho người đăng ký
+      await tx.notification.create({
+        data: {
+          userId,
+          title: "Đăng ký thành công",
+          message: `Bạn đã nộp đơn đăng ký cho đội ${teamName} tham gia giải đấu. Vui lòng chờ duyệt.`,
+          type: "REGISTRATION_UPDATE"
+        }
+      });
+
+      // Notification cho Admin (người tạo giải)
+      await tx.notification.create({
+        data: {
+          userId: tournament.createdById,
+          title: "Có đội mới đăng ký",
+          message: `Đội ${teamName} vừa nộp đơn đăng ký tham gia giải đấu.`,
+          type: "SYSTEM"
+        }
+      });
+
       return reg;
     });
 

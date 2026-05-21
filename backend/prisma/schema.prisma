@@ -38,7 +38,7 @@ model User {
   email     String   @unique
   password  String
   role      Role     @default(USER)
-  avatar    String?
+  avatar    String?          @db.LongText
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -59,7 +59,7 @@ model Tournament {
   endDate     DateTime         @map("end_date")
   maxTeams    Int              @map("max_teams")
   status      TournamentStatus @default(UPCOMING)
-  banner      String?
+  banner      String?          @db.LongText
   createdById String           @map("created_by_id")
   createdAt   DateTime         @default(now()) @map("created_at")
   updatedAt   DateTime         @updatedAt @map("updated_at")
@@ -78,6 +78,7 @@ model Registration {
   tournamentId String             @map("tournament_id")
   userId       String             @map("user_id") // Người nộp đơn
   teamName     String             @map("team_name")
+  teamLogo     String?            @db.LongText @map("team_logo")
   status       RegistrationStatus @default(PENDING)
   note         String?            @db.Text
   createdAt    DateTime           @default(now()) @map("created_at")

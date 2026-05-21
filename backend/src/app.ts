@@ -16,6 +16,8 @@ import registrationRoutes from "./routes/registration.routes";
 import statsRoutes from "./routes/stats.routes";
 import exportRoutes from "./routes/export.routes";
 import tourmentListRoutes from "./routes/tourmentList.routes";
+import notificationRoutes from "./routes/notification.routes";
+
 const app = express();
 
 
@@ -49,6 +51,8 @@ app.use("/api/registrations", registrationRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/export", exportRoutes);
 app.use("/api/tournament-list", tourmentListRoutes);
+app.use("/api/notifications", notificationRoutes);
+
 // ──────────────────────────────────────────────────────────────
 // Error Handling
 // ──────────────────────────────────────────────────────────────

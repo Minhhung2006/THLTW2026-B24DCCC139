@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
-// Thay đổi 1: Sử dụng PageHeaderWrapper nếu pro-components không tồn tại
-import { PageHeaderWrapper } from '@ant-design/pro-layout';
-// Thay đổi 2: Import thêm Space để hết lỗi "Cannot find name Space"
+import { PageContainer } from '@ant-design/pro-components';
 import { List, Card, Tabs, Badge, Typography, Button, message, Space } from 'antd';
-// @ts-ignore
-import { request } from 'umi';
+import { request } from '@umijs/max';
 import dayjs from 'dayjs';
 
 const { Text } = Typography;
-const { TabPane } = Tabs; // Dùng TabPane vì phiên bản antd cũ chưa có thuộc tính 'items'
+const { TabPane } = Tabs;
 
 const NotificationPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('all');
@@ -44,7 +41,7 @@ const NotificationPage: React.FC = () => {
   };
 
   return (
-    <PageHeaderWrapper title="Thông báo của tôi">
+    <PageContainer title="Thông báo của tôi">
       <Card>
         {/* Sửa lỗi property 'items' does not exist */}
         <Tabs activeKey={activeTab} onChange={(key) => { setActiveTab(key); setCurrent(1); }}>
@@ -100,7 +97,7 @@ const NotificationPage: React.FC = () => {
           )}
         />
       </Card>
-    </PageHeaderWrapper>
+    </PageContainer>
   );
 };
 

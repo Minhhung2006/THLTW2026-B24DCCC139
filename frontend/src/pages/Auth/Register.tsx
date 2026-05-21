@@ -1,15 +1,17 @@
+import React from 'react';
 import { LoginForm, ProFormText } from '@ant-design/pro-components';
 import { message } from 'antd';
-import { history } from '@umijs/max';
+import { useNavigate } from '@umijs/max';
 import axios from 'axios';
 
-export default () => {
+const Register: React.FC = () => {
+  const navigate = useNavigate();
   const handleSubmit = async (values: any) => {
     try {
       const apiUrl = `http://${window.location.hostname}:5000/api/auth/register`;
       await axios.post(apiUrl, values);
       message.success('Đăng ký thành công, vui lòng đăng nhập!');
-      history.push('/login');
+      navigate('/login');
     } catch (error) {
       message.error('Đăng ký thất bại, email có thể đã tồn tại!');
     }
@@ -71,9 +73,11 @@ export default () => {
           ]}
         />
         <div style={{ marginBlockEnd: 24, textAlign: 'center' }}>
-          <a onClick={() => history.push('/login')}>Đã có tài khoản? Đăng nhập ngay</a>
+          <a onClick={() => navigate('/login')}>Đã có tài khoản? Đăng nhập ngay</a>
         </div>
       </LoginForm>
     </div>
   );
 };
+
+export default Register;

@@ -30,10 +30,14 @@ export const tournamentController = {
       const data = req.body;
       data.startDate = new Date(data.startDate);
       data.endDate = new Date(data.endDate);
+      if (data.maxTeams) {
+        data.maxTeams = Number(data.maxTeams);
+      }
       
       const newTournament = await tournamentService.createTournament(data, req.user.id);
       res.status(201).json({ success: true, data: newTournament, message: "Tạo giải đấu thành công" });
-    } catch (error) {
+    } catch (error: any) {
+      console.error("CREATE TOURNAMENT ERROR:", error);
       next(error);
     }
   },

@@ -10,5 +10,7 @@ router.use(authMiddleware, roleMiddleware("ADMIN"));
 
 router.get("/overview", statsController.getOverview);
 router.get("/registrations-by-date", statsController.getRegistrationsByDate);
+router.get("/status-distribution", statsController.getStatusDistribution);
+router.get("/top-tournaments", statsController.getTopTournaments);
 
 export default router;

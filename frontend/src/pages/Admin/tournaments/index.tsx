@@ -1,486 +1,427 @@
+import React, { useEffect, useState } from 'react';
 import {
   Card,
-  Table,
-  Button,
   Space,
-  Tag,
-  message,
+  Button,
   Input,
   Select,
-  Spin,
+  Table,
+  Tag,
+  Badge,
   Popconfirm,
-  Empty,
-} from "antd";
-
-import {
-  useState,
-  useEffect,
-} from "react";
-
-import * as XLSX from "xlsx";
-
-import { saveAs }
-from "file-saver";
-
-import CreateTournamentModal from "@/components/tournament/CreateTournamentModal";
-
-import EditTournamentModal from "@/components/tournament/EditTournamentModal";
-
-import TournamentStats from "@/components/dashboard/TournamentStats";
-
-import TournamentPieChart from "@/components/dashboard/TournamentPieChart";
+  Modal,
+  Form,
+  DatePicker,
+  InputNumber,
+  message,
+} from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
+import type { ColumnsType } from 'antd/es/table';
 
 import {
   getTournaments,
   createTournament,
   updateTournament,
   deleteTournament,
-} from "@/services/adminTournament.service";
+} from '@/services/adminTournament.service';
 
-export default function AdminTournaments() {
-  const [open, setOpen] =
-    useState(false);
+interface Tournament {
+  id: string;
+  name: string;
+  game: string;
+  banner: string;
+  startDate: string;
+  endDate: string;
+  maxTeams: number;
+  status: 'UPCOMING' | 'ONGOING' | 'FINISHED';
+  _count?: {
+    registrations: number;
+  };
+  createdAt: string;
+}
 
-  const [editOpen, setEditOpen] =
-    useState(false);
+const GAME_COLORS: Record<string, string> = {
+  'Liên Quân Mobile': 'blue',
+  'PUBG Mobile': 'orange',
+  'Free Fire': 'red',
+  'League of Legends': 'gold',
+  'VALORANT': 'volcano',
+  'FC Online': 'green',
+  'Mobile Legends: Bang Bang': 'cyan',
+  'Teamfight Tactics': 'geekblue',
+  'Counter-Strike 2': 'yellow',
+  'Dota 2': 'purple',
+};
 
-  const [selectedTournament,
-    setSelectedTournament] =
-    useState<any>(null);
+const STATUS_BADGE: Record<string, 'processing' | 'success' | 'default'> = {
+  UPCOMING: 'processing',
+  ONGOING: 'success',
+  FINISHED: 'default',
+};
 
-  const [searchText,
-    setSearchText] =
-    useState("");
+export default function AdminTournamentsPage() {
+  const [data, setData] = useState<Tournament[]>([]);
+  const [loading, setLoading] = useState(false);
+  
+  // Pagination & Filters
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [search, setSearch] = useState<string>('');
+  const [game, setGame] = useState<string | undefined>(undefined);
+  const [status, setStatus] = useState<string | undefined>(undefined);
 
-  const [statusFilter,
-    setStatusFilter] =
-    useState("");
+  // Modal
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form] = Form.useForm();
+  const [submitLoading, setSubmitLoading] = useState(false);
 
-  const [loading, setLoading] =
-    useState(false);
-
-  const [createLoading,
-    setCreateLoading] =
-    useState(false);
-
-  const [updateLoading,
-    setUpdateLoading] =
-    useState(false);
-
-  const [tournaments, setTournaments] =
-    useState<any[]>([]);
-
-  const fetchTournaments =
-    async () => {
-      try {
-        setLoading(true);
-
-        const data =
-          await getTournaments();
-
-        setTournaments(data);
-      } catch (error) {
-        console.log(error);
-
-        message.error(
-          "Lỗi tải dữ liệu"
-        );
-      } finally {
-        setLoading(false);
+  const fetchTournaments = async () => {
+    try {
+      setLoading(true);
+      const res = await getTournaments({
+        page,
+        limit,
+        search,
+        game,
+        status,
+      });
+      if (res.success) {
+        setData(res.data.data);
+        setTotal(res.data.total);
       }
-    };
+    } catch (error) {
+      message.error('Lỗi khi lấy danh sách giải đấu');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchTournaments();
-  }, []);
+  }, [page, limit, search, game, status]);
 
-  const handleDelete =
-    async (id: number) => {
-      try {
-        await deleteTournament(
-          id
-        );
-
-        message.success(
-          "Xóa thành công"
-        );
-
-        fetchTournaments();
-      } catch (error) {
-        console.log(error);
-
-        message.error(
-          "Xóa thất bại"
-        );
-      }
-    };
-
-  const handleCreate =
-    async (values: any) => {
-      try {
-        setCreateLoading(true);
-
-        await createTournament(
-          values
-        );
-
-        message.success(
-          "Tạo giải đấu thành công"
-        );
-
-        setOpen(false);
-
-        fetchTournaments();
-      } catch (error) {
-        console.log(error);
-
-        message.error(
-          "Tạo giải đấu thất bại"
-        );
-      } finally {
-        setCreateLoading(false);
-      }
-    };
-
-  const handleEdit = (
-    tournament: any
-  ) => {
-    setSelectedTournament(
-      tournament
-    );
-
-    setEditOpen(true);
+  const handleTableChange = (pagination: any) => {
+    setPage(pagination.current);
+    setLimit(pagination.pageSize);
   };
 
-  const handleUpdate =
-    async (values: any) => {
-      try {
-        setUpdateLoading(true);
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteTournament(id);
+      message.success('Xóa giải đấu thành công');
+      fetchTournaments();
+    } catch (error: any) {
+      message.error(error.response?.data?.message || 'Lỗi khi xóa giải đấu');
+    }
+  };
 
-        await updateTournament(
-          selectedTournament.id,
-          values
-        );
+  const openModal = (record?: Tournament) => {
+    if (record) {
+      setEditingId(record.id);
+      form.setFieldsValue({
+        name: record.name,
+        game: record.game,
+        banner: record.banner,
+        startDate: dayjs(record.startDate),
+        endDate: dayjs(record.endDate),
+        maxTeams: record.maxTeams,
+        status: record.status,
+      });
+    } else {
+      setEditingId(null);
+      form.resetFields();
+      form.setFieldsValue({ status: 'UPCOMING' });
+    }
+    setModalVisible(true);
+  };
 
-        message.success(
-          "Cập nhật thành công"
-        );
+  const closeModal = () => {
+    setModalVisible(false);
+    form.resetFields();
+    setEditingId(null);
+  };
 
-        setEditOpen(false);
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+      setSubmitLoading(true);
 
-        fetchTournaments();
-      } catch (error) {
-        console.log(error);
+      const payload = {
+        ...values,
+        startDate: values.startDate.toISOString(),
+        endDate: values.endDate.toISOString(),
+      };
 
-        message.error(
-          "Cập nhật thất bại"
-        );
-      } finally {
-        setUpdateLoading(false);
+      if (editingId) {
+        await updateTournament(editingId, payload);
+        message.success('Cập nhật giải đấu thành công');
+      } else {
+        await createTournament(payload);
+        message.success('Tạo giải đấu thành công');
       }
-    };
 
-  const filteredData =
-    tournaments.filter((item) => {
-      const matchName =
-        item.name
-          ?.toLowerCase()
-          .includes(
-            searchText.toLowerCase()
-          );
+      closeModal();
+      fetchTournaments();
+    } catch (error: any) {
+      if (error.response) {
+        message.error(error.response.data.message || 'Có lỗi xảy ra');
+      }
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
 
-      const matchStatus =
-        statusFilter
-          ? item.status ===
-            statusFilter
-          : true;
-
-      return (
-        matchName && matchStatus
-      );
-    });
-
-  const handleExportExcel =
-    () => {
-      const exportData =
-        tournaments.map(
-          (item) => ({
-            "Tên giải đấu":
-              item.name,
-
-            Game:
-              item.game,
-
-            "Trạng thái":
-              item.status,
-          })
-        );
-
-      const worksheet =
-        XLSX.utils.json_to_sheet(
-          exportData
-        );
-
-      const workbook =
-        XLSX.utils.book_new();
-
-      XLSX.utils.book_append_sheet(
-        workbook,
-        worksheet,
-        "Tournaments"
-      );
-
-      const excelBuffer =
-        XLSX.write(
-          workbook,
-          {
-            bookType: "xlsx",
-            type: "array",
-          }
-        );
-
-      const fileData =
-        new Blob(
-          [excelBuffer],
-          {
-            type:
-              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
-          }
-        );
-
-      saveAs(
-        fileData,
-        "tournaments.xlsx"
-      );
-    };
-
-  const columns = [
+  const columns: ColumnsType<Tournament> = [
     {
-      title: "Tên giải đấu",
-      dataIndex: "name",
-
-      sorter: (
-        a: any,
-        b: any
-      ) =>
-        a.name.localeCompare(
-          b.name
-        ),
+      title: 'STT',
+      key: 'stt',
+      width: 60,
+      render: (_, __, index) => (page - 1) * limit + index + 1,
     },
-
     {
-      title: "Game",
-      dataIndex: "game",
-
-      sorter: (
-        a: any,
-        b: any
-      ) =>
-        a.game.localeCompare(
-          b.game
-        ),
+      title: 'Tên giải',
+      dataIndex: 'name',
+      key: 'name',
     },
-
     {
-      title: "Trạng thái",
-      dataIndex: "status",
-
-      render: (status: string) => {
-        const statusMap: any = {
-          UPCOMING: {
-            color: "blue",
-            text: "Sắp diễn ra",
-          },
-
-          ONGOING: {
-            color: "green",
-            text: "Đang diễn ra",
-          },
-
-          FINISHED: {
-            color: "red",
-            text: "Đã kết thúc",
-          },
-        };
-
-        return (
-          <Tag
-            color={
-              statusMap[status]
-                ?.color
-            }
-          >
-            {
-              statusMap[status]
-                ?.text
-            }
-          </Tag>
-        );
-      },
+      title: 'Game',
+      dataIndex: 'game',
+      key: 'game',
+      render: (game: string) => (
+        <Tag color={GAME_COLORS[game] || 'default'}>{game}</Tag>
+      ),
     },
-
     {
-      title: "Hành động",
-
-      render: (_: any, record: any) => (
+      title: 'Ngày bắt đầu',
+      dataIndex: 'startDate',
+      key: 'startDate',
+      render: (date: string) => dayjs(date).format('DD/MM/YYYY'),
+    },
+    {
+      title: 'Ngày kết thúc',
+      dataIndex: 'endDate',
+      key: 'endDate',
+      render: (date: string) => dayjs(date).format('DD/MM/YYYY'),
+    },
+    {
+      title: 'Đã đăng ký',
+      key: 'registered',
+      render: (_, record) => (
+        <span>
+          {record._count?.registrations || 0} / {record.maxTeams}
+        </span>
+      ),
+    },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: string) => (
+        <Badge status={STATUS_BADGE[status] || 'default'} text={status} />
+      ),
+    },
+    {
+      title: 'Hành động',
+      key: 'action',
+      render: (_, record) => (
         <Space>
           <Button
-            type="primary"
-            onClick={() =>
-              handleEdit(record)
-            }
-          >
-            Sửa
-          </Button>
-
+            type="text"
+            icon={<EditOutlined />}
+            onClick={() => openModal(record)}
+          />
           <Popconfirm
-            title="Xóa giải đấu"
-            description="Bạn có chắc muốn xóa giải đấu này?"
+            title="Bạn có chắc muốn xóa giải đấu này?"
+            onConfirm={() => handleDelete(record.id)}
             okText="Xóa"
             cancelText="Hủy"
-            onConfirm={() =>
-              handleDelete(record.id)
-            }
+            okButtonProps={{ danger: true }}
           >
-            <Button danger>
-              Xóa
-            </Button>
+            <Button type="text" danger icon={<DeleteOutlined />} />
           </Popconfirm>
         </Space>
       ),
     },
   ];
 
-  if (loading) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent:
-            "center",
-          marginTop: 100,
-        }}
-      >
-        <Spin size="large" />
-      </div>
-    );
-  }
-
   return (
-    <div style={{ padding: 24 }}>
-      <TournamentStats
-        tournaments={tournaments}
+    <Card
+      title="Quản lý giải đấu"
+      extra={
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => openModal()}>
+          Thêm giải đấu
+        </Button>
+      }
+    >
+      <Space style={{ marginBottom: 16 }} size={8}>
+        <Input.Search
+          placeholder="Tìm tên giải..."
+          allowClear
+          style={{ width: 240 }}
+          onSearch={(value) => {
+            setSearch(value);
+            setPage(1);
+          }}
+        />
+        <Select
+          placeholder="Tất cả game"
+          allowClear
+          style={{ width: 150 }}
+          onChange={(value) => {
+            setGame(value);
+            setPage(1);
+          }}
+          options={[
+            { label: 'Liên Quân Mobile', value: 'Liên Quân Mobile' },
+            { label: 'PUBG Mobile', value: 'PUBG Mobile' },
+            { label: 'Free Fire', value: 'Free Fire' },
+            { label: 'League of Legends', value: 'League of Legends' },
+            { label: 'VALORANT', value: 'VALORANT' },
+            { label: 'FC Online', value: 'FC Online' },
+            { label: 'Mobile Legends: Bang Bang', value: 'Mobile Legends: Bang Bang' },
+            { label: 'Teamfight Tactics', value: 'Teamfight Tactics' },
+            { label: 'Counter-Strike 2', value: 'Counter-Strike 2' },
+            { label: 'Dota 2', value: 'Dota 2' },
+          ]}
+        />
+        <Select
+          placeholder="Tất cả trạng thái"
+          allowClear
+          style={{ width: 160 }}
+          onChange={(value) => {
+            setStatus(value);
+            setPage(1);
+          }}
+          options={[
+            { label: 'UPCOMING', value: 'UPCOMING' },
+            { label: 'ONGOING', value: 'ONGOING' },
+            { label: 'FINISHED', value: 'FINISHED' },
+          ]}
+        />
+      </Space>
+
+      <Table
+        columns={columns}
+        dataSource={data}
+        rowKey="id"
+        loading={loading}
+        pagination={{
+          current: page,
+          pageSize: limit,
+          total: total,
+          showSizeChanger: true,
+        }}
+        onChange={handleTableChange}
       />
 
-      <TournamentPieChart
-        tournaments={tournaments}
-      />
-
-      <Card
-        title="Quản lý giải đấu"
-        extra={
-          <Space>
-            <Button
-              onClick={
-                handleExportExcel
-              }
-            >
-              Xuất Excel
-            </Button>
-
-            <Button
-              type="primary"
-              onClick={() =>
-                setOpen(true)
-              }
-            >
-              Tạo giải đấu
-            </Button>
-          </Space>
-        }
+      <Modal
+        title={editingId ? 'Chỉnh sửa giải đấu' : 'Thêm giải đấu'}
+        open={modalVisible}
+        onCancel={closeModal}
+        onOk={handleSubmit}
+        confirmLoading={submitLoading}
+        destroyOnClose
+        width={600}
       >
-        <div
-          style={{
-            display: "flex",
-            gap: 16,
-            marginBottom: 16,
-            flexWrap: "wrap",
-          }}
-        >
-          <Input
-            placeholder="Tìm giải đấu..."
-            value={searchText}
-            style={{ width: 250 }}
-            onChange={(e) =>
-              setSearchText(
-                e.target.value
-              )
-            }
-          />
-
-          <Select
-            placeholder="Lọc trạng thái"
-            style={{ width: 200 }}
-            allowClear
-            onChange={(value) =>
-              setStatusFilter(
-                value || ""
-              )
-            }
+        <Form form={form} layout="vertical" preserve={false}>
+          <Form.Item
+            name="name"
+            label="Tên giải đấu"
+            rules={[{ required: true, message: 'Vui lòng nhập tên giải đấu' }]}
           >
-            <Select.Option value="UPCOMING">
-              UPCOMING
-            </Select.Option>
+            <Input placeholder="Nhập tên giải" />
+          </Form.Item>
 
-            <Select.Option value="ONGOING">
-              ONGOING
-            </Select.Option>
+          <Form.Item
+            name="game"
+            label="Game"
+            rules={[{ required: true, message: 'Vui lòng chọn game' }]}
+          >
+            <Select
+              placeholder="Chọn game"
+              options={[
+                { label: 'Liên Quân Mobile', value: 'Liên Quân Mobile' },
+                { label: 'PUBG Mobile', value: 'PUBG Mobile' },
+                { label: 'Free Fire', value: 'Free Fire' },
+                { label: 'League of Legends', value: 'League of Legends' },
+                { label: 'VALORANT', value: 'VALORANT' },
+                { label: 'FC Online', value: 'FC Online' },
+                { label: 'Mobile Legends: Bang Bang', value: 'Mobile Legends: Bang Bang' },
+                { label: 'Teamfight Tactics', value: 'Teamfight Tactics' },
+                { label: 'Counter-Strike 2', value: 'Counter-Strike 2' },
+                { label: 'Dota 2', value: 'Dota 2' },
+              ]}
+            />
+          </Form.Item>
 
-            <Select.Option value="FINISHED">
-              FINISHED
-            </Select.Option>
-          </Select>
-        </div>
+          <Form.Item name="banner" label="Banner URL">
+            <Input placeholder="Nhập link ảnh banner" />
+          </Form.Item>
 
-        <Table
-          rowKey="id"
-          columns={columns}
-          dataSource={filteredData}
-          scroll={{ x: 800 }}
-          pagination={{
-            pageSize: 5,
-            showSizeChanger: false,
-          }}
-          locale={{
-            emptyText: (
-              <Empty
-                description="Không có giải đấu nào"
+          <Space style={{ display: 'flex' }} align="start">
+            <Form.Item
+              name="startDate"
+              label="Ngày bắt đầu"
+              rules={[{ required: true, message: 'Vui lòng chọn ngày bắt đầu' }]}
+            >
+              <DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} />
+            </Form.Item>
+
+            <Form.Item
+              name="endDate"
+              label="Ngày kết thúc"
+              dependencies={['startDate']}
+              rules={[
+                { required: true, message: 'Vui lòng chọn ngày kết thúc' },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const start = getFieldValue('startDate');
+                    if (!value || !start || value.isAfter(start) || value.isSame(start)) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('Ngày kết thúc phải sau hoặc bằng ngày bắt đầu'));
+                  },
+                }),
+              ]}
+            >
+              <DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} />
+            </Form.Item>
+          </Space>
+
+          <Space style={{ display: 'flex' }} align="start">
+            <Form.Item
+              name="maxTeams"
+              label="Số đội tối đa"
+              rules={[
+                { required: true, message: 'Vui lòng nhập số đội tối đa' },
+                {
+                  validator: (_, value) => {
+                    if (value && value % 2 !== 0) {
+                      return Promise.reject(new Error('Số đội tối đa phải là số chẵn'));
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
+            >
+              <InputNumber min={2} step={2} style={{ width: '100%' }} />
+            </Form.Item>
+
+            <Form.Item name="status" label="Trạng thái">
+              <Select
+                options={[
+                  { label: 'UPCOMING', value: 'UPCOMING' },
+                  { label: 'ONGOING', value: 'ONGOING' },
+                  { label: 'FINISHED', value: 'FINISHED' },
+                ]}
               />
-            ),
-          }}
-        />
-
-        <CreateTournamentModal
-          open={open}
-          onClose={() =>
-            setOpen(false)
-          }
-          onCreate={handleCreate}
-          loading={createLoading}
-        />
-
-        <EditTournamentModal
-          open={editOpen}
-          onClose={() =>
-            setEditOpen(false)
-          }
-          tournament={
-            selectedTournament
-          }
-          onUpdate={handleUpdate}
-          loading={updateLoading}
-        />
-      </Card>
-    </div>
+            </Form.Item>
+          </Space>
+        </Form>
+      </Modal>
+    </Card>
   );
 }

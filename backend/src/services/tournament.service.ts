@@ -36,6 +36,15 @@ export const tournamentService = {
         skip,
         take,
         orderBy: { createdAt: "desc" },
+        include: {
+          _count: {
+            select: {
+              registrations: {
+                where: { status: "APPROVED" }
+              }
+            }
+          }
+        }
       })
     ]);
 
@@ -59,6 +68,18 @@ export const tournamentService = {
           select: {
             registrations: {
               where: { status: RegistrationStatus.APPROVED }
+            }
+          }
+        },
+        registrations: {
+          where: { status: RegistrationStatus.APPROVED },
+          include: {
+            members: true,
+            user: {
+              select: {
+                username: true,
+                email: true,
+              }
             }
           }
         }

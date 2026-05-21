@@ -1,24 +1,46 @@
 export default [
-  { path: '/', component: 'index', name: 'Trang chủ' },
-  { path: '/tournaments', component: 'TourmentList', name: 'Giải đấu' },
+  { path: '/', component: 'index', name: 'Trang chủ', icon: 'AppstoreOutlined' },
+  { path: '/tournaments', component: 'tournaments/index', name: 'Giải đấu', icon: 'TrophyOutlined' },
+  { path: '/tournaments/:id', component: 'tournaments/[id]', name: 'Chi tiết giải đấu', hideInMenu: true },
+  { path: '/schedule', component: 'schedule/index', name: 'Lịch thi đấu', icon: 'CalendarOutlined' },
+  { path: '/teams', component: 'teams/index', name: 'Đội tham gia', icon: 'TeamOutlined' },
+  {
+    path: '/my-registrations',
+    name: 'Giải đã đăng ký',
+    component: './my-registrations',
+    access: 'normalUser',
+    icon: 'ScheduleOutlined'
+  },
+  {
+    path: '/manage-registrations',
+    name: 'Đội chơi đăng ký',
+    component: 'Admin/registrations/index',
+    access: 'canAdmin',
+    icon: 'ScheduleOutlined'
+  },
+  { path: '/leaderboard', component: 'leaderboard/index', name: 'Bảng xếp hạng', icon: 'BarChartOutlined' },
+  { path: '/settings', component: 'index', name: 'Cài đặt', icon: 'SettingOutlined' },
   { path: '/login', component: 'Auth/Login', layout: false },
   { path: '/register', component: 'Auth/Register', layout: false },
   
-  // THÊM ROUTE CHO TRANG THÔNG BÁO Ở ĐÂY
   {
     path: '/notifications',
     name: 'Thông báo',
-    component: './notifications', // Trỏ đến src/pages/notifications/index.tsx
-    hideInMenu: true, // Ẩn khỏi menu bên trái
+    component: './notifications',
+    hideInMenu: true,
   },
 
   {
     path: '/admin',
     name: 'Admin',
     access: 'canAdmin',
+    hideInMenu: true,
     routes: [
       { path: '/admin', redirect: '/admin/dashboard' },
       { path: '/admin/dashboard', component: 'Admin/Dashboard', name: 'Dashboard' },
+      { path: '/admin/tournaments', component: 'Admin/tournaments/index', name: 'Quản lý giải đấu' },
+      { path: '/admin/registrations', component: 'Admin/registrations/index', name: 'Quản lý đăng ký' },
+      { path: '/admin/statistics', component: 'Admin/statistics/index', name: 'Thống kê' },
     ],
   },
 ];

@@ -1,52 +1,27 @@
 import axios from "axios";
 
-const API_URL =
-  "http://localhost:3000/api";
+const API_URL = `http://${window.location.hostname}:5000/api`;
 
-// Fake fetch tournament
-export const getTournamentById =
-  async (id: string) => {
-    console.log(
-      "Fetch tournament:",
-      id
-    );
-
-    return {
-      id,
-      name: "Valorant Champions 2026",
-      game: "Valorant",
-      status: "ONGOING",
-      maxTeams: 16,
-      currentTeams: 10,
-      prizePool: "50,000,000 VNĐ",
-      description:
-        "Giải đấu Valorant dành cho các đội tuyển bán chuyên và chuyên nghiệp.",
-      banner:
-        "https://images.contentstack.io/v3/assets/bltb6530b271fddd0b1/blt0f5b8f7c18d4d5bb/valorant-champions.jpg",
-    };
-
-    /*
-    REAL API:
-
-    const response = await axios.get(
-      `${API_URL}/tournaments/${id}`
-    );
-
-    return response.data;
-    */
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("token");
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   };
+};
 
-// Fake register
-export const registerTournament =
-  async (data: any) => {
-    console.log(
-      "Register tournament:",
-      data
-    );
+export const getTournamentById = async (id: string) => {
+  const response = await axios.get(`${API_URL}/tournaments/${id}?_t=${Date.now()}`);
+  return response.data.data;
+};
 
-    return {
-      success: true,
-      message:
-        "Đăng ký giải đấu thành công",
-    };
-  };
+export const registerTournament = async (data: any) => {
+  const response = await axios.post(`${API_URL}/registrations`, data, getAuthHeaders());
+  return response.data;
+};
+
+export const getMyRegistrations = async () => {
+  const response = await axios.get(`${API_URL}/registrations/my`, getAuthHeaders());
+  return response.data.data;
+};

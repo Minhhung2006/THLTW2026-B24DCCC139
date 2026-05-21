@@ -78,7 +78,7 @@ export const errorHandler = (
     res.status(400).json({
       success: false,
       data: null,
-      message: "Dữ liệu đầu vào không hợp lệ.",
+      message: "Dữ liệu đầu vào không hợp lệ: " + err.message,
     });
     return;
   }

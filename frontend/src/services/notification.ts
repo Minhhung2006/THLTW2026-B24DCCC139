@@ -1,29 +1,39 @@
-import request from 'umi-request';
+import axios from 'axios';
+
+const API_URL = `http://${window.location.hostname}:5000/api`;
+
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+};
+
 // 1. Lấy danh sách thông báo (phân trang)
 export async function getMyNotifications(params: { page: number; limit: number; status?: string }) {
-  return request('/api/notifications/my', {
-    method: 'GET',
+  const response = await axios.get(`${API_URL}/notifications/my`, {
     params,
+    ...getAuthHeaders(),
   });
+  return response.data;
 }
 
 // 2. Lấy số lượng chưa đọc
 export async function getUnreadCount() {
-  return request('/api/notifications/unread-count', {
-    method: 'GET',
-  });
+  const response = await axios.get(`${API_URL}/notifications/unread-count`, getAuthHeaders());
+  return response.data;
 }
 
 // 3. Đánh dấu 1 thông báo đã đọc
-export async function markAsRead(id: number) {
-  return request(`/api/notifications/${id}/read`, {
-    method: 'PATCH',
-  });
+export async function markAsRead(id: string) {
+  const response = await axios.patch(`${API_URL}/notifications/${id}/read`, {}, getAuthHeaders());
+  return response.data;
 }
 
 // 4. Đánh dấu tất cả đã đọc
 export async function markAllAsRead() {
-  return request('/api/notifications/read-all', {
-    method: 'PATCH',
-  });
+  const response = await axios.patch(`${API_URL}/notifications/read-all`, {}, getAuthHeaders());
+  return response.data;
 }

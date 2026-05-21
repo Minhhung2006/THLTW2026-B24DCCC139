@@ -1,9 +1,11 @@
+import React from 'react';
 import { LoginForm, ProFormText } from '@ant-design/pro-components';
 import { message } from 'antd';
-import { history } from '@umijs/max';
+import { useNavigate } from '@umijs/max';
 import axios from 'axios';
 
-export default () => {
+const Login: React.FC = () => {
+  const navigate = useNavigate();
   const handleSubmit = async (values: any) => {
     try {
       const apiUrl = `http://${window.location.hostname}:5000/api/auth/login`;
@@ -60,9 +62,11 @@ export default () => {
           ]}
         />
         <div style={{ marginBlockEnd: 24, textAlign: 'center' }}>
-          <a onClick={() => history.push('/register')}>Chưa có tài khoản? Đăng ký ngay</a>
+          <a onClick={() => navigate('/register')}>Chưa có tài khoản? Đăng ký ngay</a>
         </div>
       </LoginForm>
     </div>
   );
 };
+
+export default Login;
