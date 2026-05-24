@@ -1,14 +1,27 @@
+import React, { useState } from 'react';
 import {
   Card,
   Progress,
   Button,
-} from "antd";
+  Modal,
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  InputNumber,
+  Space,
+  message,
+} from 'antd';
+import { EditOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
+import { updateTournament } from '@/services/adminTournament.service';
 
 interface Props {
   tournament: any;
   onRegister: () => void;
   user?: any;
   isRegistered?: boolean;
+  onUpdated?: () => void; // callback để reload tournament sau khi sửa
 }
 
 export default function TournamentSidebar({
@@ -16,52 +29,241 @@ export default function TournamentSidebar({
   onRegister,
   user,
   isRegistered,
+  onUpdated,
 }: Props) {
   const currentTeams = tournament._count?.registrations || tournament.currentTeams || 0;
-  const percent =
-    (currentTeams /
-      tournament.maxTeams) *
-    100;
+  const percent = (currentTeams / tournament.maxTeams) * 100;
 
-  const showRegisterButton = 
-    user && 
-    user.role === 'USER' && 
-    tournament.status === 'UPCOMING' && 
+  const isAdmin = user?.role === 'ADMIN';
+  const showRegisterButton =
+    user &&
+    user.role === 'USER' &&
+    tournament.status === 'UPCOMING' &&
     !isRegistered;
 
+  // ── Edit modal ──────────────────────────────────
+  const [editOpen, setEditOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [form] = Form.useForm();
+
+  const openEdit = () => {
+    form.setFieldsValue({
+      name: tournament.name,
+      game: tournament.game,
+      banner: tournament.banner,
+      startDate: tournament.startDate ? dayjs(tournament.startDate) : undefined,
+      endDate: tournament.endDate ? dayjs(tournament.endDate) : undefined,
+      maxTeams: tournament.maxTeams,
+      status: tournament.status,
+      format: tournament.format || 'SINGLE_ELIMINATION',
+    });
+    setEditOpen(true);
+  };
+
+  const handleSave = async () => {
+    try {
+      const values = await form.validateFields();
+      setSubmitting(true);
+      await updateTournament(tournament.id, {
+        ...values,
+        startDate: values.startDate?.toISOString(),
+        endDate: values.endDate?.toISOString(),
+      });
+      message.success('Cập nhật giải đấu thành công!');
+      setEditOpen(false);
+      onUpdated?.();
+    } catch (err: any) {
+      if (err?.response) {
+        message.error(err.response.data?.message || 'Có lỗi xảy ra');
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
-    <Card title="Thông tin giải đấu">
-      <p>
-        <strong>Số đội được duyệt:</strong>{" "}
-        {currentTeams}/
-        {tournament.maxTeams}
-      </p>
+    <>
+      <Card
+        title="Thông tin giải đấu"
+        extra={
+          isAdmin && (
+            <Button
+              type="text"
+              icon={<EditOutlined />}
+              onClick={openEdit}
+              style={{ color: '#1890ff' }}
+            >
+              Chỉnh sửa
+            </Button>
+          )
+        }
+      >
+        <p>
+          <strong>Số đội được duyệt:</strong>{' '}
+          {currentTeams}/{tournament.maxTeams}
+        </p>
 
-      <Progress percent={percent} status={percent >= 100 ? "success" : "active"} />
+        <p>
+          <strong>Kiểu giải đấu:</strong>{' '}
+          {tournament.format === 'ROUND_ROBIN'
+            ? '🔄 Vòng bảng (Round Robin)'
+            : '🏆 Nhánh cây (Loại trực tiếp)'}
+        </p>
 
-      {showRegisterButton && (
-        <Button
-          type="primary"
-          size="large"
-          block
-          style={{ marginTop: 20 }}
-          onClick={onRegister}
-        >
-          Đăng ký tham gia
-        </Button>
-      )}
+        <Progress percent={percent} status={percent >= 100 ? 'success' : 'active'} />
 
-      {isRegistered && (
-        <Button
-          type="default"
-          size="large"
-          block
-          disabled
-          style={{ marginTop: 20 }}
-        >
-          Đã đăng ký tham gia
-        </Button>
-      )}
-    </Card>
+        {showRegisterButton && (
+          <Button
+            type="primary"
+            size="large"
+            block
+            style={{ marginTop: 20 }}
+            onClick={onRegister}
+          >
+            Đăng ký tham gia
+          </Button>
+        )}
+
+        {isRegistered && (
+          <Button
+            type="default"
+            size="large"
+            block
+            disabled
+            style={{ marginTop: 20 }}
+          >
+            Đã đăng ký tham gia
+          </Button>
+        )}
+      </Card>
+
+      {/* ── Edit Tournament Modal ── */}
+      <Modal
+        title="Chỉnh sửa giải đấu"
+        open={editOpen}
+        onCancel={() => setEditOpen(false)}
+        onOk={handleSave}
+        confirmLoading={submitting}
+        okText="Lưu thay đổi"
+        cancelText="Hủy"
+        destroyOnClose
+        width={600}
+      >
+        <Form form={form} layout="vertical" preserve={false}>
+          <Form.Item
+            name="name"
+            label="Tên giải đấu"
+            rules={[{ required: true, message: 'Vui lòng nhập tên giải đấu' }]}
+          >
+            <Input placeholder="Nhập tên giải" />
+          </Form.Item>
+
+          <Form.Item
+            name="game"
+            label="Game"
+            rules={[{ required: true, message: 'Vui lòng chọn game' }]}
+          >
+            <Select
+              placeholder="Chọn game"
+              options={[
+                { label: 'Liên Quân Mobile', value: 'Liên Quân Mobile' },
+                { label: 'PUBG Mobile', value: 'PUBG Mobile' },
+                { label: 'Free Fire', value: 'Free Fire' },
+                { label: 'League of Legends', value: 'League of Legends' },
+                { label: 'VALORANT', value: 'VALORANT' },
+                { label: 'FC Online', value: 'FC Online' },
+                { label: 'Mobile Legends: Bang Bang', value: 'Mobile Legends: Bang Bang' },
+                { label: 'Teamfight Tactics', value: 'Teamfight Tactics' },
+                { label: 'Counter-Strike 2', value: 'Counter-Strike 2' },
+                { label: 'Dota 2', value: 'Dota 2' },
+              ]}
+            />
+          </Form.Item>
+
+          <Form.Item name="banner" label="Banner URL">
+            <Input placeholder="Nhập link ảnh banner" />
+          </Form.Item>
+
+          <Space style={{ display: 'flex' }} align="start">
+            <Form.Item
+              name="startDate"
+              label="Ngày bắt đầu"
+              rules={[{ required: true, message: 'Vui lòng chọn ngày bắt đầu' }]}
+            >
+              <DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} />
+            </Form.Item>
+
+            <Form.Item
+              name="endDate"
+              label="Ngày kết thúc"
+              dependencies={['startDate']}
+              rules={[
+                { required: true, message: 'Vui lòng chọn ngày kết thúc' },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const start = getFieldValue('startDate');
+                    if (!value || !start || value.isAfter(start) || value.isSame(start)) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('Ngày kết thúc phải sau hoặc bằng ngày bắt đầu'));
+                  },
+                }),
+              ]}
+            >
+              <DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} />
+            </Form.Item>
+          </Space>
+
+          <Space style={{ display: 'flex' }} align="start">
+            <Form.Item
+              name="maxTeams"
+              label="Số đội tối đa"
+              rules={[
+                { required: true, message: 'Vui lòng nhập số đội tối đa' },
+                {
+                  validator: (_, value) => {
+                    if (value && value % 2 !== 0) {
+                      return Promise.reject(new Error('Số đội tối đa phải là số chẵn'));
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
+            >
+              <InputNumber min={2} step={2} style={{ width: '100%' }} />
+            </Form.Item>
+
+            <Form.Item name="status" label="Trạng thái">
+              <Select
+                options={[
+                  { label: 'Sắp diễn ra', value: 'UPCOMING' },
+                  { label: 'Đang diễn ra', value: 'ONGOING' },
+                  { label: 'Đã kết thúc', value: 'FINISHED' },
+                ]}
+              />
+            </Form.Item>
+          </Space>
+
+          <Form.Item
+            name="format"
+            label="Kiểu giải đấu"
+            rules={[{ required: true, message: 'Vui lòng chọn kiểu giải đấu' }]}
+          >
+            <Select
+              options={[
+                {
+                  label: '🏆 Nhánh cây (Loại trực tiếp)',
+                  value: 'SINGLE_ELIMINATION',
+                },
+                {
+                  label: '🔄 Vòng bảng (Round Robin)',
+                  value: 'ROUND_ROBIN',
+                },
+              ]}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
+    </>
   );
 }

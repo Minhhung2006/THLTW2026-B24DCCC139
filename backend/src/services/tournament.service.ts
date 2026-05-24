@@ -1,6 +1,6 @@
 import prisma from "../config/prisma";
 import { AppError } from "../middlewares/error.middleware";
-import { TournamentStatus, RegistrationStatus } from "@prisma/client";
+import { TournamentStatus, RegistrationStatus, TournamentFormat } from "@prisma/client";
 
 interface CreateTournamentDto {
   name: string;
@@ -10,10 +10,12 @@ interface CreateTournamentDto {
   endDate: Date;
   maxTeams: number;
   banner?: string;
+  format?: TournamentFormat;
 }
 
 interface UpdateTournamentDto extends Partial<CreateTournamentDto> {
   status?: TournamentStatus;
+  format?: TournamentFormat;
 }
 
 export const tournamentService = {

@@ -24,4 +24,9 @@ export const registerTournament = async (data: any) => {
 export const getMyRegistrations = async () => {
   const response = await axios.get(`${API_URL}/registrations/my`, getAuthHeaders());
   return response.data.data;
+};
+
+export const getAllTournaments = async () => {
+  const response = await axios.get(`${API_URL}/tournaments`);
+  return response.data;
 };

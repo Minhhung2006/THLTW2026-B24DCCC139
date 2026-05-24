@@ -3,6 +3,8 @@ import { PageContainer } from '@ant-design/pro-components';
 import { Card, Row, Col, Input, Select, Badge, Tag, Button, Pagination, Space, Skeleton, Typography } from 'antd';
 import { useNavigate, request } from '@umijs/max';
 import dayjs from 'dayjs';
+import PageTransition from '@/components/motion/PageTransition';
+import { StaggerContainer, AnimatedItem } from '@/components/motion/AnimatedList';
 
 const { Title, Text } = Typography;
 
@@ -80,6 +82,7 @@ const TournamentList: React.FC = () => {
 
   return (
     <PageContainer title="Danh sách giải đấu">
+      <PageTransition>
       <Card style={{ marginBottom: 24 }}>
         <Space wrap>
           <Input.Search 
@@ -94,9 +97,15 @@ const TournamentList: React.FC = () => {
             style={{ width: 200 }}
             onChange={val => { setGameFilter(val); setPage(1); }}
             options={[
-              { value: 'Valorant', label: 'Valorant' },
-              { value: 'CS:GO', label: 'CS:GO' },
+              { value: 'Liên Quân Mobile', label: 'Liên Quân Mobile' },
+              { value: 'PUBG Mobile', label: 'PUBG Mobile' },
+              { value: 'Free Fire', label: 'Free Fire' },
               { value: 'League of Legends', label: 'League of Legends' },
+              { value: 'VALORANT', label: 'VALORANT' },
+              { value: 'FC Online', label: 'FC Online' },
+              { value: 'Mobile Legends: Bang Bang', label: 'Mobile Legends: Bang Bang' },
+              { value: 'Teamfight Tactics', label: 'Teamfight Tactics' },
+              { value: 'Counter-Strike 2', label: 'Counter-Strike 2' },
             ]}
           />
           <Select 
@@ -113,23 +122,23 @@ const TournamentList: React.FC = () => {
         </Space>
       </Card>
 
-      <Row gutter={[24, 24]}>
+      <StaggerContainer style={{ display: 'flex', flexWrap: 'wrap', gap: 24, marginTop: 0 }}>
         {loading ? (
           Array.from({ length: 3 }).map((_, i) => (
-            <Col xs={24} sm={12} md={8} key={`skeleton-${i}`}>
+            <AnimatedItem key={`skeleton-${i}`} style={{ flex: '1 1 280px' }}>
               <Card>
                 <Skeleton.Image active style={{ width: '100%', height: 160, marginBottom: 16 }} />
                 <Skeleton active paragraph={{ rows: 3 }} />
               </Card>
-            </Col>
+            </AnimatedItem>
           ))
         ) : items.length === 0 ? (
-          <Col span={24} style={{ textAlign: 'center', padding: '40px 0' }}>
+          <div style={{ textAlign: 'center', padding: '40px 0', width: '100%' }}>
             <Text type="secondary">Không tìm thấy giải đấu nào.</Text>
-          </Col>
+          </div>
         ) : (
           items.map(t => (
-            <Col xs={24} sm={12} md={8} key={t.id}>
+            <AnimatedItem key={t.id} style={{ flex: '1 1 280px' }}>
               <Card 
                 hoverable 
                 cover={
@@ -165,10 +174,10 @@ const TournamentList: React.FC = () => {
                   } 
                 />
               </Card>
-            </Col>
+            </AnimatedItem>
           ))
         )}
-      </Row>
+      </StaggerContainer>
 
       {!loading && items.length > 0 && (
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32 }}>
@@ -181,6 +190,7 @@ const TournamentList: React.FC = () => {
           />
         </div>
       )}
+      </PageTransition>
     </PageContainer>
   );
 };

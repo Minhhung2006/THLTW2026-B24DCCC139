@@ -35,6 +35,7 @@ interface Tournament {
   endDate: string;
   maxTeams: number;
   status: 'UPCOMING' | 'ONGOING' | 'FINISHED';
+  format: 'SINGLE_ELIMINATION' | 'ROUND_ROBIN';
   _count?: {
     registrations: number;
   };
@@ -129,11 +130,12 @@ export default function AdminTournamentsPage() {
         endDate: dayjs(record.endDate),
         maxTeams: record.maxTeams,
         status: record.status,
+        format: record.format || 'SINGLE_ELIMINATION',
       });
     } else {
       setEditingId(null);
       form.resetFields();
-      form.setFieldsValue({ status: 'UPCOMING' });
+      form.setFieldsValue({ status: 'UPCOMING', format: 'SINGLE_ELIMINATION' });
     }
     setModalVisible(true);
   };
@@ -221,6 +223,16 @@ export default function AdminTournamentsPage() {
       key: 'status',
       render: (status: string) => (
         <Badge status={STATUS_BADGE[status] || 'default'} text={status} />
+      ),
+    },
+    {
+      title: 'Kiểu giải đấu',
+      dataIndex: 'format',
+      key: 'format',
+      render: (format: string) => (
+        <Tag color={format === 'ROUND_ROBIN' ? 'purple' : 'gold'}>
+          {format === 'ROUND_ROBIN' ? '🔄 Vòng bảng' : '🏆 Nhánh cây'}
+        </Tag>
       ),
     },
     {
@@ -420,6 +432,26 @@ export default function AdminTournamentsPage() {
               />
             </Form.Item>
           </Space>
+
+          <Form.Item
+            name="format"
+            label="Kiểu giải đấu"
+            rules={[{ required: true, message: 'Vui lòng chọn kiểu giải đấu' }]}
+          >
+            <Select
+              placeholder="Chọn kiểu giải đấu"
+              options={[
+                {
+                  label: '🏆 Nhánh cây (Loại trực tiếp)',
+                  value: 'SINGLE_ELIMINATION',
+                },
+                {
+                  label: '🔄 Vòng bảng (Round Robin)',
+                  value: 'ROUND_ROBIN',
+                },
+              ]}
+            />
+          </Form.Item>
         </Form>
       </Modal>
     </Card>

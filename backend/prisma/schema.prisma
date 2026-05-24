@@ -22,6 +22,11 @@ enum TournamentStatus {
   FINISHED
 }
 
+enum TournamentFormat {
+  SINGLE_ELIMINATION
+  ROUND_ROBIN
+}
+
 enum RegistrationStatus {
   PENDING
   APPROVED
@@ -59,6 +64,7 @@ model Tournament {
   endDate     DateTime         @map("end_date")
   maxTeams    Int              @map("max_teams")
   status      TournamentStatus @default(UPCOMING)
+  format      TournamentFormat @default(SINGLE_ELIMINATION)
   banner      String?          @db.LongText
   createdById String           @map("created_by_id")
   createdAt   DateTime         @default(now()) @map("created_at")
@@ -67,6 +73,7 @@ model Tournament {
   // Relations
   createdBy     User           @relation("UserTournaments", fields: [createdById], references: [id])
   registrations Registration[]
+  matches       Match[]
 
   @@index([createdById])
   @@index([status])
@@ -88,6 +95,8 @@ model Registration {
   tournament Tournament  @relation(fields: [tournamentId], references: [id])
   user       User        @relation(fields: [userId], references: [id])
   members    RegMember[]
+  team1Matches Match[]   @relation("Team1Matches")
+  team2Matches Match[]   @relation("Team2Matches")
 
   @@unique([tournamentId, userId]) // Một user chỉ được nộp 1 đơn cho 1 giải
   @@index([tournamentId])
@@ -122,4 +131,28 @@ model Notification {
 
   @@index([userId])
   @@map("notifications")
+}
+
+model Match {
+  id           String       @id @default(cuid())
+  tournamentId String       @map("tournament_id")
+  team1Id      String?      @map("team1_id")
+  team2Id      String?      @map("team2_id")
+  team1Score   Int?
+  team2Score   Int?
+  startTime    DateTime?    @map("start_time")
+  status       String       @default("PENDING") // PENDING, ONGOING, COMPLETED
+  round        String?      // e.g. "Bán kết", "Chung kết"
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  // Relations
+  tournament   Tournament    @relation(fields: [tournamentId], references: [id])
+  team1        Registration? @relation("Team1Matches", fields: [team1Id], references: [id])
+  team2        Registration? @relation("Team2Matches", fields: [team2Id], references: [id])
+
+  @@index([tournamentId])
+  @@index([team1Id])
+  @@index([team2Id])
+  @@map("matches")
 }

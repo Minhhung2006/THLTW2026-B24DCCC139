@@ -114,11 +114,10 @@ export default function TournamentDetail() {
         <Col xs={24} lg={8}>
           <TournamentSidebar
             tournament={tournament}
-            onRegister={() =>
-              setOpen(true)
-            }
+            onRegister={() => setOpen(true)}
             user={user}
             isRegistered={isRegistered}
+            onUpdated={fetchTournament}
           />
         </Col>
       </Row>

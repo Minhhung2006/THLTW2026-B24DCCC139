@@ -46,7 +46,7 @@ const NotificationBell = () => {
         console.error("Failed to mark notification as read", error);
       }
     }
-    navigate('/notifications');
+    navigate('/manage-registrations');
     setOpen(false);
   };
 
@@ -83,7 +83,7 @@ const NotificationBell = () => {
         type="link"
         block
         onClick={() => {
-          navigate('/notifications');
+          navigate('/manage-registrations');
           setOpen(false);
         }}
       >

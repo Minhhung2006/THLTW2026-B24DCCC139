@@ -3,6 +3,9 @@ import { PageContainer } from '@ant-design/pro-components';
 import { List, Card, Tabs, Badge, Typography, Button, message, Space } from 'antd';
 import { request } from '@umijs/max';
 import dayjs from 'dayjs';
+import { motion, AnimatePresence } from 'framer-motion';
+import PageTransition from '@/components/motion/PageTransition';
+import { FadeIn } from '@/components/motion/AnimatedList';
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -42,6 +45,7 @@ const NotificationPage: React.FC = () => {
 
   return (
     <PageContainer title="Thông báo của tôi">
+      <PageTransition>
       <Card>
         {/* Sửa lỗi property 'items' does not exist */}
         <Tabs activeKey={activeTab} onChange={(key) => { setActiveTab(key); setCurrent(1); }}>
@@ -61,7 +65,13 @@ const NotificationPage: React.FC = () => {
             // Bỏ thuộc tính 'align' vì phiên bản cũ không hỗ trợ
             style: { marginTop: 24, textAlign: 'center' } 
           }}
-          renderItem={(item: any) => (
+          renderItem={(item: any, index: number) => (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.06, ease: 'easeOut' }}
+            >
             <List.Item
               actions={[
                 !item.isRead && (
@@ -94,9 +104,11 @@ const NotificationPage: React.FC = () => {
                 }
               />
             </List.Item>
+            </motion.div>
           )}
         />
       </Card>
+      </PageTransition>
     </PageContainer>
   );
 };

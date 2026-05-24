@@ -25,6 +25,7 @@
     "antd": "^6.3.7",
     "axios": "^1.16.0",
     "file-saver": "^2.0.5",
+    "framer-motion": "^12.40.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "xlsx": "^0.18.5"

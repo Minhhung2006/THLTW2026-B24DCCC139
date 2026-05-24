@@ -58,9 +58,9 @@ const GAME_COLORS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  PENDING: '#fa8c16',
-  APPROVED: '#52c41a',
-  REJECTED: '#ff4d4f',
+  PENDING: '#ffa940',
+  APPROVED: '#73d13d',
+  REJECTED: '#ff7875',
 };
 
 export default function AdminStatisticsPage() {
@@ -151,13 +151,14 @@ export default function AdminStatisticsPage() {
     xField: 'date',
     yField: 'count',
     smooth: true,
-    color: '#722ed1',
+    color: '#b37feb',
+    theme: 'dark',
     point: {
       size: 4,
       shape: 'circle',
       style: {
-        fill: '#fff',
-        stroke: '#722ed1',
+        fill: '#141414',
+        stroke: '#b37feb',
         lineWidth: 2,
       },
     },
@@ -169,6 +170,7 @@ export default function AdminStatisticsPage() {
     angleField: 'count',
     colorField: 'status',
     innerRadius: 0.6,
+    theme: 'dark',
     color: ({ status }: any) => STATUS_COLORS[status] || '#d9d9d9',
     label: {
       type: 'inner',
@@ -224,7 +226,7 @@ export default function AdminStatisticsPage() {
       dataIndex: 'approved',
       key: 'approved',
       align: 'center',
-      render: (val: number) => <span style={{ color: '#52c41a' }}>{val}</span>,
+      render: (val: number) => <span style={{ color: '#73d13d' }}>{val}</span>,
     },
     {
       title: 'Tỷ lệ duyệt',
@@ -255,41 +257,41 @@ export default function AdminStatisticsPage() {
         {/* STATISTIC CARDS */}
         <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
           <Col span={6}>
-            <Card bordered={false} style={{ backgroundColor: '#f9f0ff' }}>
+            <Card bordered={false} style={{ backgroundColor: 'rgba(114, 46, 209, 0.15)', border: '1px solid rgba(114, 46, 209, 0.3)' }}>
               <Statistic
-                title="Tổng giải đấu"
+                title={<span style={{ color: '#d3adf7', fontWeight: 500 }}>Tổng giải đấu</span>}
                 value={overview.totalTournaments}
-                valueStyle={{ color: '#722ed1', fontWeight: 'bold' }}
+                valueStyle={{ color: '#b37feb', fontWeight: 'bold' }}
                 prefix={<TrophyOutlined />}
               />
             </Card>
           </Col>
           <Col span={6}>
-            <Card bordered={false} style={{ backgroundColor: '#e6f7ff' }}>
+            <Card bordered={false} style={{ backgroundColor: 'rgba(24, 144, 255, 0.15)', border: '1px solid rgba(24, 144, 255, 0.3)' }}>
               <Statistic
-                title="Tổng đăng ký"
+                title={<span style={{ color: '#85a5ff', fontWeight: 500 }}>Tổng đăng ký</span>}
                 value={overview.totalRegistrations}
-                valueStyle={{ color: '#1890ff', fontWeight: 'bold' }}
+                valueStyle={{ color: '#69c0ff', fontWeight: 'bold' }}
                 prefix={<FileTextOutlined />}
               />
             </Card>
           </Col>
           <Col span={6}>
-            <Card bordered={false} style={{ backgroundColor: '#fff7e6' }}>
+            <Card bordered={false} style={{ backgroundColor: 'rgba(250, 140, 22, 0.15)', border: '1px solid rgba(250, 140, 22, 0.3)' }}>
               <Statistic
-                title="Chờ duyệt"
+                title={<span style={{ color: '#ffd591', fontWeight: 500 }}>Chờ duyệt</span>}
                 value={overview.pendingRegistrations}
-                valueStyle={{ color: '#fa8c16', fontWeight: 'bold' }}
+                valueStyle={{ color: '#ffc069', fontWeight: 'bold' }}
                 prefix={<ClockCircleOutlined />}
               />
             </Card>
           </Col>
           <Col span={6}>
-            <Card bordered={false} style={{ backgroundColor: '#f6ffed' }}>
+            <Card bordered={false} style={{ backgroundColor: 'rgba(82, 196, 26, 0.15)', border: '1px solid rgba(82, 196, 26, 0.3)' }}>
               <Statistic
-                title="Đã duyệt"
+                title={<span style={{ color: '#b7eb8f', fontWeight: 500 }}>Đã duyệt</span>}
                 value={overview.approvedRegistrations}
-                valueStyle={{ color: '#52c41a', fontWeight: 'bold' }}
+                valueStyle={{ color: '#95de64', fontWeight: 'bold' }}
                 prefix={<CheckCircleOutlined />}
               />
             </Card>
