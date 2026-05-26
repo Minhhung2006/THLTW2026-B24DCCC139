@@ -91,13 +91,15 @@ export const registrationService = {
   },
 
   async getAllRegistrations(query: any) {
-    const { tournamentId, status, page = 1, limit = 10 } = query;
-    const skip = (Number(page) - 1) * Number(limit);
-    const take = Number(limit);
+    const { tournamentId, status, page, limit } = query;
+    const parsedPage = Math.max(1, parseInt(page as string) || 1);
+    const parsedLimit = Math.max(1, parseInt(limit as string) || 10);
+    const skip = (parsedPage - 1) * parsedLimit;
+    const take = parsedLimit;
 
     const where: any = {};
-    if (tournamentId) where.tournamentId = tournamentId;
-    if (status) where.status = status as RegistrationStatus;
+    if (tournamentId && tournamentId !== 'undefined' && tournamentId !== 'null') where.tournamentId = tournamentId;
+    if (status && status !== 'undefined' && status !== 'null') where.status = status as RegistrationStatus;
 
     const [total, data] = await Promise.all([
       prisma.registration.count({ where }),
@@ -114,7 +116,7 @@ export const registrationService = {
       })
     ]);
 
-    return { total, page: Number(page), limit: Number(limit), totalPages: Math.ceil(total / Number(limit)), data };
+    return { total, page: parsedPage, limit: parsedLimit, totalPages: Math.ceil(total / parsedLimit), data };
   },
 
   async getMyRegistrations(userId: string) {
@@ -186,5 +188,42 @@ export const registrationService = {
     await emailService.sendRegistrationEmail(reg.user.email, "REJECTED", note);
 
     return updated;
+  },
+
+  async updateSurvivalStats(id: string, points: number, kills: number, top1Count: number) {
+    const reg = await prisma.registration.findUnique({ where: { id } });
+    if (!reg) throw new AppError("Không tìm thấy đơn đăng ký", 404);
+    
+    return prisma.registration.update({
+      where: { id },
+      data: { survivalPoints: points, kills, top1Count }
+    });
+  },
+
+  async updateRegistrationInfo(id: string, data: { teamName: string; teamLogo?: string; members: { memberName: string; gameId: string }[] }) {
+    const reg = await prisma.registration.findUnique({ where: { id } });
+    if (!reg) throw new AppError("Không tìm thấy đơn đăng ký", 404);
+
+    return prisma.$transaction(async (tx) => {
+      // 1. Delete all existing members
+      await tx.regMember.deleteMany({
+        where: { registrationId: id }
+      });
+
+      // 2. Update registration and recreate members
+      const updatedReg = await tx.registration.update({
+        where: { id },
+        data: {
+          teamName: data.teamName,
+          teamLogo: data.teamLogo,
+          members: {
+            create: data.members.map(m => ({ memberName: m.memberName, gameId: m.gameId }))
+          }
+        },
+        include: { members: true, user: true, tournament: true }
+      });
+
+      return updatedReg;
+    });
   }
 };

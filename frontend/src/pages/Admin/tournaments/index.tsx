@@ -230,8 +230,8 @@ export default function AdminTournamentsPage() {
       dataIndex: 'format',
       key: 'format',
       render: (format: string) => (
-        <Tag color={format === 'ROUND_ROBIN' ? 'purple' : 'gold'}>
-          {format === 'ROUND_ROBIN' ? '🔄 Vòng bảng' : '🏆 Nhánh cây'}
+        <Tag color={format === 'ROUND_ROBIN' ? 'purple' : format === 'SURVIVAL_STAGE' ? 'green' : 'gold'}>
+          {format === 'ROUND_ROBIN' ? '🔄 Vòng bảng' : format === 'SURVIVAL_STAGE' ? '🪂 Sinh tồn' : '🏆 Nhánh cây'}
         </Tag>
       ),
     },
@@ -448,6 +448,10 @@ export default function AdminTournamentsPage() {
                 {
                   label: '🔄 Vòng bảng (Round Robin)',
                   value: 'ROUND_ROBIN',
+                },
+                {
+                  label: '🪂 Sinh tồn (Survival Stage)',
+                  value: 'SURVIVAL_STAGE',
                 },
               ]}
             />

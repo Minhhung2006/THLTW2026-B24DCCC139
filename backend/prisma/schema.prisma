@@ -25,6 +25,7 @@ enum TournamentStatus {
 enum TournamentFormat {
   SINGLE_ELIMINATION
   ROUND_ROBIN
+  SURVIVAL_STAGE
 }
 
 enum RegistrationStatus {
@@ -88,6 +89,9 @@ model Registration {
   teamLogo     String?            @db.LongText @map("team_logo")
   status       RegistrationStatus @default(PENDING)
   note         String?            @db.Text
+  survivalPoints Int              @default(0)
+  kills          Int              @default(0)
+  top1Count      Int              @default(0)
   createdAt    DateTime           @default(now()) @map("created_at")
   updatedAt    DateTime           @updatedAt @map("updated_at")
 

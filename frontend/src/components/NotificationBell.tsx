@@ -8,18 +8,19 @@ const NotificationBell = () => {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [showAll, setShowAll] = useState(false);
 
   // Router history
   const navigate = useNavigate();
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = async (isAll = showAll) => {
     try {
       const token = localStorage.getItem('token');
       if (!token) return;
 
       const [unreadRes, listRes] = await Promise.all([
         getUnreadCount(),
-        getMyNotifications({ page: 1, limit: 5 }) // fetch top 5 recent notifications
+        getMyNotifications({ page: 1, limit: isAll ? 50 : 5 }) // fetch more if showAll is true
       ]);
 
       if (unreadRes.success) setUnreadCount(unreadRes.data.count);
@@ -33,9 +34,9 @@ const NotificationBell = () => {
     fetchNotifications();
     
     // Optional: Auto refresh every 30 seconds
-    const interval = setInterval(fetchNotifications, 30000);
+    const interval = setInterval(() => fetchNotifications(showAll), 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [showAll]);
 
   const handleNotificationClick = async (item: any) => {
     if (!item.isRead) {
@@ -83,11 +84,10 @@ const NotificationBell = () => {
         type="link"
         block
         onClick={() => {
-          navigate('/manage-registrations');
-          setOpen(false);
+          setShowAll(!showAll);
         }}
       >
-        Xem tất cả
+        {showAll ? 'Thu gọn' : 'Xem tất cả'}
       </Button>
     </div>
   );

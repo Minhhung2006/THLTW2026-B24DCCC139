@@ -38,3 +38,13 @@ export const exportRegistrationsExcel = async (params?: any) => {
   });
   return response;
 };
+
+export const updateSurvivalStats = async (id: string, stats: { points: number; kills: number; top1Count: number }) => {
+  const response = await axios.patch(`${API_URL}/${id}/survival-stats`, stats, getAuthHeaders());
+  return response.data;
+};
+
+export const updateRegistrationInfo = async (id: string, data: { teamName: string; teamLogo?: string; members: { memberName: string; gameId: string }[] }) => {
+  const response = await axios.put(`${API_URL}/${id}`, data, getAuthHeaders());
+  return response.data;
+};

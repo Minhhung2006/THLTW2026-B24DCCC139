@@ -3,7 +3,7 @@ import { PageContainer } from '@ant-design/pro-components';
 import { Card, Typography, List, Modal, Button, Form, Select, InputNumber, Space, Tag, message, Row, Col, Spin, DatePicker, Table } from 'antd';
 import { useModel } from '@umijs/max';
 import { getAllTournaments, getTournamentById } from '@/services/tournament.service';
-import { getAdminRegistrations } from '@/services/adminRegistration.service';
+import { getAdminRegistrations, updateSurvivalStats } from '@/services/adminRegistration.service';
 import { getMatchesByTournament, createMatch, updateMatchScore } from '@/services/schedule.service';
 import PageTransition from '@/components/motion/PageTransition';
 import { StaggerContainer, AnimatedItem } from '@/components/motion/AnimatedList';
@@ -29,6 +29,43 @@ const SchedulePage: React.FC = () => {
   const [isAddMatchModalVisible, setIsAddMatchModalVisible] = useState(false);
   const [isUpdateScoreModalVisible, setIsUpdateScoreModalVisible] = useState(false);
   const [currentMatch, setCurrentMatch] = useState<any>(null);
+
+  // Survival Stage states
+  const [updatingTeamId, setUpdatingTeamId] = useState<string | null>(null);
+  const [survivalStatsMap, setSurvivalStatsMap] = useState<Record<string, { points: number; kills: number; top1Count: number }>>({});
+
+  useEffect(() => {
+    const stats: Record<string, { points: number; kills: number; top1Count: number }> = {};
+    approvedTeams.forEach(t => {
+      stats[t.id] = {
+        points: t.survivalPoints || 0,
+        kills: t.kills || 0,
+        top1Count: t.top1Count || 0,
+      };
+    });
+    setSurvivalStatsMap(stats);
+  }, [approvedTeams]);
+
+  const handleUpdateSurvivalStats = async (teamId: string) => {
+    if (selectedTournament?.status !== 'ONGOING' && selectedTournament?.status !== 'Đang diễn ra') {
+      const isUpcoming = selectedTournament?.status === 'UPCOMING' || selectedTournament?.status === 'Sắp diễn ra';
+      message.warning(`Không thể chỉnh sửa điểm: Giải đấu ${isUpcoming ? 'chưa bắt đầu' : 'đã kết thúc'}!`);
+      return;
+    }
+    try {
+      setUpdatingTeamId(teamId);
+      const stats = survivalStatsMap[teamId] || { points: 0, kills: 0, top1Count: 0 };
+      const res = await updateSurvivalStats(teamId, stats);
+      if (res.success) {
+        message.success('Cập nhật chỉ số thành công');
+        fetchTournamentDetails(selectedTournament.id);
+      }
+    } catch (error: any) {
+      message.error(error.response?.data?.message || 'Lỗi khi cập nhật chỉ số');
+    } finally {
+      setUpdatingTeamId(null);
+    }
+  };
 
   const [form] = Form.useForm();
   const [scoreForm] = Form.useForm();
@@ -118,6 +155,11 @@ const SchedulePage: React.FC = () => {
   };
 
   const openUpdateScoreModal = (match: any) => {
+    if (selectedTournament?.status !== 'ONGOING' && selectedTournament?.status !== 'Đang diễn ra') {
+      const isUpcoming = selectedTournament?.status === 'UPCOMING' || selectedTournament?.status === 'Sắp diễn ra';
+      message.warning(`Không thể cập nhật kết quả: Giải đấu ${isUpcoming ? 'chưa bắt đầu' : 'đã kết thúc'}!`);
+      return;
+    }
     setCurrentMatch(match);
     scoreForm.setFieldsValue({
       team1Score: match.team1Score,
@@ -219,15 +261,15 @@ const SchedulePage: React.FC = () => {
     <PageContainer>
       <PageTransition>
       <Card title="Danh sách Giải Đấu">
-        <StaggerContainer style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
+        <StaggerContainer style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16 }}>
           {loading
             ? Array.from({ length: 3 }).map((_, i) => (
-                <AnimatedItem key={`sk-${i}`} style={{ flex: '1 1 260px' }}>
+                <AnimatedItem key={`sk-${i}`}>
                   <Card loading style={{ height: 280 }} />
                 </AnimatedItem>
               ))
             : tournaments.map((item) => (
-                <AnimatedItem key={item.id} style={{ flex: '1 1 260px' }}>
+                <AnimatedItem key={item.id}>
                   <Card
                     hoverable
                     className="animated-card"
@@ -289,52 +331,112 @@ const SchedulePage: React.FC = () => {
             </div>
           )}
 
-          <div>
-            <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
-              <Col><Title level={4} style={{ margin: 0 }}>Lịch Thi Đấu</Title></Col>
-              <Col>
-                {isAdmin && (
-                  <Button type="primary" onClick={() => setIsAddMatchModalVisible(true)}>
-                    Tạo cặp đấu
-                  </Button>
-                )}
-              </Col>
-            </Row>
-
-            <List
-              dataSource={matches}
-              renderItem={match => (
-                <List.Item
-                  actions={isAdmin ? [
-                    <Button key="update" type="link" onClick={() => openUpdateScoreModal(match)}>
-                      Cập nhật
+          {selectedTournament?.format === 'SURVIVAL_STAGE' ? (
+            <div style={{ marginBottom: 24 }}>
+              <Title level={4}>Bảng Xếp Hạng Sinh Tồn</Title>
+              <Table
+                dataSource={[...approvedTeams].sort((a, b) => {
+                  const pointsDiff = (b.survivalPoints || 0) - (a.survivalPoints || 0);
+                  if (pointsDiff !== 0) return pointsDiff;
+                  const top1Diff = (b.top1Count || 0) - (a.top1Count || 0);
+                  if (top1Diff !== 0) return top1Diff;
+                  return (b.kills || 0) - (a.kills || 0);
+                })}
+                rowKey="id"
+                pagination={false}
+                size="small"
+                scroll={{ x: 'max-content' }}
+                columns={[
+                  { title: '#', render: (_, __, i) => i + 1, width: 40, align: 'center', key: 'stt' },
+                  { title: 'Đội', dataIndex: 'teamName', key: 'teamName' },
+                  { 
+                    title: 'Top 1', 
+                    key: 'top1Count', 
+                    align: 'center', 
+                    render: (_, record) => {
+                      if (!isAdmin) return <Text>{record.top1Count || 0}</Text>;
+                      return <InputNumber min={0} value={survivalStatsMap[record.id]?.top1Count} onChange={v => setSurvivalStatsMap(prev => ({...prev, [record.id]: {...prev[record.id], top1Count: v || 0}}))} style={{ width: 60 }} />;
+                    } 
+                  },
+                  { 
+                    title: 'Kills', 
+                    key: 'kills', 
+                    align: 'center', 
+                    render: (_, record) => {
+                      if (!isAdmin) return <Text>{record.kills || 0}</Text>;
+                      return <InputNumber min={0} value={survivalStatsMap[record.id]?.kills} onChange={v => setSurvivalStatsMap(prev => ({...prev, [record.id]: {...prev[record.id], kills: v || 0}}))} style={{ width: 60 }} />;
+                    } 
+                  },
+                  { 
+                    title: 'Tổng Điểm', 
+                    key: 'survivalPoints', 
+                    align: 'center', 
+                    render: (_, record) => {
+                      if (!isAdmin) return <Text strong>{record.survivalPoints || 0}</Text>;
+                      return <InputNumber min={0} value={survivalStatsMap[record.id]?.points} onChange={v => setSurvivalStatsMap(prev => ({...prev, [record.id]: {...prev[record.id], points: v || 0}}))} style={{ width: 80 }} />;
+                    } 
+                  },
+                  ...(isAdmin ? [{
+                    title: 'Thao tác',
+                    key: 'action',
+                    align: 'center' as const,
+                    render: (_: any, record: any) => (
+                      <Button type="primary" size="small" loading={updatingTeamId === record.id} onClick={() => handleUpdateSurvivalStats(record.id)}>
+                        Lưu
+                      </Button>
+                    )
+                  }] : []),
+                ]}
+              />
+            </div>
+          ) : (
+            <div>
+              <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
+                <Col><Title level={4} style={{ margin: 0 }}>Lịch Thi Đấu</Title></Col>
+                <Col>
+                  {isAdmin && (
+                    <Button type="primary" onClick={() => setIsAddMatchModalVisible(true)}>
+                      Tạo cặp đấu
                     </Button>
-                  ] : []}
-                >
-                  <List.Item.Meta
-                    title={
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span>
-                          <strong>{match.team1?.teamName || 'TBD'}</strong> vs <strong>{match.team2?.teamName || 'TBD'}</strong>
-                        </span>
-                        <Tag color={match.status === 'COMPLETED' ? 'green' : match.status === 'ONGOING' ? 'orange' : 'default'}>
-                          {match.status}
-                        </Tag>
-                      </div>
-                    }
-                    description={
-                      <div>
-                        {match.round && <Text type="secondary">Vòng: {match.round} | </Text>}
-                        <Text strong>Tỉ số: {match.team1Score ?? '-'} : {match.team2Score ?? '-'}</Text>
-                        {match.startTime && <div><Text type="secondary">Thời gian: {new Date(match.startTime).toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' })}</Text></div>}
-                      </div>
-                    }
-                  />
-                </List.Item>
-              )}
-              locale={{ emptyText: 'Chưa có cặp đấu nào' }}
-            />
-          </div>
+                  )}
+                </Col>
+              </Row>
+
+              <List
+                dataSource={matches}
+                renderItem={match => (
+                  <List.Item
+                    actions={isAdmin ? [
+                      <Button key="update" type="link" onClick={() => openUpdateScoreModal(match)}>
+                        Cập nhật
+                      </Button>
+                    ] : []}
+                  >
+                    <List.Item.Meta
+                      title={
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span>
+                            <strong>{match.team1?.teamName || 'TBD'}</strong> vs <strong>{match.team2?.teamName || 'TBD'}</strong>
+                          </span>
+                          <Tag color={match.status === 'COMPLETED' ? 'green' : match.status === 'ONGOING' ? 'orange' : 'default'}>
+                            {match.status}
+                          </Tag>
+                        </div>
+                      }
+                      description={
+                        <div>
+                          {match.round && <Text type="secondary">Vòng: {match.round} | </Text>}
+                          <Text strong>Tỉ số: {match.team1Score ?? '-'} : {match.team2Score ?? '-'}</Text>
+                          {match.startTime && <div><Text type="secondary">Thời gian: {new Date(match.startTime).toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' })}</Text></div>}
+                        </div>
+                      }
+                    />
+                  </List.Item>
+                )}
+                locale={{ emptyText: 'Chưa có cặp đấu nào' }}
+              />
+            </div>
+          )}
         </Spin>
       </Modal>
 

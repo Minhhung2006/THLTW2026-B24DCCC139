@@ -3,8 +3,9 @@ import { PageContainer } from '@ant-design/pro-components';
 import { Select, Card, Spin, Typography, Empty } from 'antd';
 import { TrophyOutlined, FireOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
-import { getAllTournaments } from '@/services/tournament.service';
+import { getAllTournaments, getTournamentById } from '@/services/tournament.service';
 import { getMatchesByTournament } from '@/services/schedule.service';
+import { Table } from 'antd';
 import PageTransition from '@/components/motion/PageTransition';
 import './leaderboard.css';
 
@@ -170,10 +171,112 @@ const BracketView: React.FC<{ matches: Match[] }> = ({ matches }) => {
   );
 };
 
+// ── Survival Stage Leaderboard ──────────────────────────────
+const SurvivalStageLeaderboard: React.FC<{ teams: any[] }> = ({ teams }) => {
+  const sortedTeams = [...teams].sort((a, b) => {
+    const pointsDiff = (b.survivalPoints || 0) - (a.survivalPoints || 0);
+    if (pointsDiff !== 0) return pointsDiff;
+    const top1Diff = (b.top1Count || 0) - (a.top1Count || 0);
+    if (top1Diff !== 0) return top1Diff;
+    return (b.kills || 0) - (a.kills || 0);
+  });
+
+  return (
+    <motion.div 
+      className="survival-leaderboard" 
+      style={{ padding: '0 20px' }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      <Table
+        className="premium-table"
+        dataSource={sortedTeams}
+        rowKey="id"
+        pagination={false}
+        columns={[
+          { 
+            title: 'HẠNG', 
+            render: (_, __, i) => {
+              const rank = i + 1;
+              let rankStyle: React.CSSProperties = { color: 'rgba(255,255,255,0.45)', fontWeight: 'bold', fontSize: 16 };
+              let icon = null;
+              
+              if (rank === 1) { 
+                rankStyle.color = '#ffd700'; 
+                icon = <TrophyOutlined style={{ color: '#ffd700', marginRight: 8, fontSize: 18 }}/>; 
+              } else if (rank === 2) { 
+                rankStyle.color = '#e0e0e0'; 
+              } else if (rank === 3) { 
+                rankStyle.color = '#cd7f32'; 
+              }
+              
+              return (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', ...rankStyle }}>
+                  {icon}
+                  {rank === 1 ? '1' : rank}
+                </div>
+              );
+            }, 
+            width: 80, 
+            align: 'center', 
+            key: 'stt' 
+          },
+          { 
+            title: 'ĐỘI TUYỂN', 
+            dataIndex: 'teamName', 
+            key: 'teamName', 
+            render: (text, _, i) => (
+              <Text strong style={{ 
+                color: i === 0 ? '#ffd700' : '#fff', 
+                fontSize: 16,
+                textShadow: i === 0 ? '0 0 10px rgba(255,215,0,0.5)' : 'none'
+              }}>
+                {text}
+              </Text>
+            )
+          },
+          { 
+            title: 'TOP 1', 
+            dataIndex: 'top1Count', 
+            key: 'top1Count', 
+            align: 'center', 
+            render: (val) => <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 15 }}>{val || 0}</Text> 
+          },
+          { 
+            title: 'KILLS', 
+            dataIndex: 'kills', 
+            key: 'kills', 
+            align: 'center', 
+            render: (val) => <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 15 }}>{val || 0}</Text> 
+          },
+          { 
+            title: 'TỔNG ĐIỂM', 
+            dataIndex: 'survivalPoints', 
+            key: 'survivalPoints', 
+            align: 'center', 
+            render: (val, _, i) => (
+              <Text strong style={{ 
+                color: i === 0 ? '#ffd700' : '#faad14', 
+                fontSize: i === 0 ? 20 : 18,
+                textShadow: i === 0 ? '0 0 10px rgba(255,215,0,0.5)' : 'none'
+              }}>
+                {val || 0}
+              </Text> 
+            )
+          },
+        ]}
+      />
+    </motion.div>
+  );
+};
+
 // ── Main Page ───────────────────────────────────────────────
 const LeaderboardPage: React.FC = () => {
   const [tournaments, setTournaments] = useState<any[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedTournament, setSelectedTournament] = useState<any>(null);
+  const [approvedTeams, setApprovedTeams] = useState<any[]>([]);
   const [matches, setMatches] = useState<Match[]>([]);
   const [loadingTournaments, setLoadingTournaments] = useState(false);
   const [loadingMatches, setLoadingMatches] = useState(false);
@@ -193,8 +296,15 @@ const LeaderboardPage: React.FC = () => {
   useEffect(() => {
     if (!selectedId) return;
     setLoadingMatches(true);
-    getMatchesByTournament(selectedId)
-      .then((res) => setMatches(res.success ? res.data : []))
+    Promise.all([
+      getMatchesByTournament(selectedId),
+      getTournamentById(selectedId)
+    ])
+      .then(([matchesRes, tournament]) => {
+        setMatches(matchesRes.success ? matchesRes.data : []);
+        setSelectedTournament(tournament);
+        setApprovedTeams(tournament?.registrations || []);
+      })
       .catch(console.error)
       .finally(() => setLoadingMatches(false));
   }, [selectedId]);
@@ -206,7 +316,7 @@ const LeaderboardPage: React.FC = () => {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
           <Title level={3} style={{ margin: 0, color: '#fff' }}>
             <TrophyOutlined style={{ color: '#faad14', marginRight: 10 }} />
-            Bảng Nhánh Đấu
+            {selectedTournament?.format === 'SURVIVAL_STAGE' ? 'Bảng Xếp Hạng Sinh Tồn' : 'Bảng Nhánh Đấu'}
           </Title>
           <Select
             style={{ width: 280 }}
@@ -232,6 +342,8 @@ const LeaderboardPage: React.FC = () => {
             <div style={{ textAlign: 'center', padding: 60 }}>
               <Spin size="large" />
             </div>
+          ) : selectedTournament?.format === 'SURVIVAL_STAGE' ? (
+            <SurvivalStageLeaderboard teams={approvedTeams} />
           ) : (
             <BracketView matches={matches} />
           )}

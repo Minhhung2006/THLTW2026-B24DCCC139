@@ -122,10 +122,10 @@ const TournamentList: React.FC = () => {
         </Space>
       </Card>
 
-      <StaggerContainer style={{ display: 'flex', flexWrap: 'wrap', gap: 24, marginTop: 0 }}>
+      <StaggerContainer style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24, marginTop: 0 }}>
         {loading ? (
           Array.from({ length: 3 }).map((_, i) => (
-            <AnimatedItem key={`skeleton-${i}`} style={{ flex: '1 1 280px' }}>
+            <AnimatedItem key={`skeleton-${i}`}>
               <Card>
                 <Skeleton.Image active style={{ width: '100%', height: 160, marginBottom: 16 }} />
                 <Skeleton active paragraph={{ rows: 3 }} />
@@ -133,12 +133,12 @@ const TournamentList: React.FC = () => {
             </AnimatedItem>
           ))
         ) : items.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px 0', width: '100%' }}>
+          <div style={{ textAlign: 'center', padding: '40px 0', gridColumn: '1 / -1' }}>
             <Text type="secondary">Không tìm thấy giải đấu nào.</Text>
           </div>
         ) : (
           items.map(t => (
-            <AnimatedItem key={t.id} style={{ flex: '1 1 280px' }}>
+            <AnimatedItem key={t.id}>
               <Card 
                 hoverable 
                 cover={

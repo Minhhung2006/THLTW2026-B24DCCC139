@@ -126,14 +126,15 @@ export const tournamentService = {
 
     if (!existing) throw new AppError("Không tìm thấy giải đấu", 404);
 
-    if (existing.registrations.length > 0) {
-      throw new AppError("Không thể xóa giải đấu đã có đội được duyệt", 400);
+    if (existing.registrations.length > 0 && existing.status !== TournamentStatus.FINISHED) {
+      throw new AppError("Không thể xóa giải đấu đang hoạt động đã có đội được duyệt. Chỉ có thể xóa giải đấu đã KẾT THÚC.", 400);
     }
 
-    // Delete cascading might be needed or handled by DB, but safe way is to delete related pending/rejected registrations first
-    // Due to simple Prisma setup, if there's no onDelete: Cascade in Prisma for registrations -> tournament, we have to delete manually
-    // Let's use a transaction to be safe.
+    // Xóa tất cả dữ liệu liên quan (matches, regMembers, registrations)
     await prisma.$transaction([
+      prisma.match.deleteMany({
+        where: { tournamentId: id }
+      }),
       prisma.regMember.deleteMany({
         where: { registration: { tournamentId: id } }
       }),

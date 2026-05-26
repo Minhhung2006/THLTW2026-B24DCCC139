@@ -25,8 +25,10 @@ import {
   approveRegistration,
   rejectRegistration,
   exportRegistrationsExcel,
+  updateRegistrationInfo,
 } from '@/services/adminRegistration.service';
 import { getTournaments } from '@/services/adminTournament.service';
+import { PlusOutlined, MinusCircleOutlined, EditOutlined } from '@ant-design/icons';
 
 interface Member {
   id: string;
@@ -86,6 +88,10 @@ export default function AdminRegistrationsPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [currentRejectId, setCurrentRejectId] = useState<string | null>(null);
 
+  // Edit Modal
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editForm] = Form.useForm();
+  
   useEffect(() => {
     fetchTournaments();
   }, []);
@@ -108,18 +114,18 @@ export default function AdminRegistrationsPage() {
   const fetchRegistrations = async () => {
     try {
       setLoading(true);
-      const res = await getAdminRegistrations({
-        page,
-        limit,
-        tournamentId,
-        status: statusFilter,
-      });
+      const params: any = { page, limit };
+      if (tournamentId) params.tournamentId = tournamentId;
+      if (statusFilter) params.status = statusFilter;
+
+      const res = await getAdminRegistrations(params);
       if (res.success) {
         setData(res.data.data);
         setTotal(res.data.total);
       }
-    } catch (error) {
-      message.error('Lỗi khi lấy danh sách đăng ký');
+    } catch (error: any) {
+      console.error('Fetch Registrations Error:', error.response?.data || error.message || error);
+      message.error(error.response?.data?.message || error.message || 'Lỗi khi lấy danh sách đăng ký');
     } finally {
       setLoading(false);
     }
@@ -171,6 +177,37 @@ export default function AdminRegistrationsPage() {
     } catch (error: any) {
       if (error.response) {
         message.error(error.response.data.message || 'Lỗi khi từ chối');
+      }
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const openEditModal = () => {
+    if (!selectedReg) return;
+    editForm.setFieldsValue({
+      teamName: selectedReg.teamName,
+      teamLogo: (selectedReg as any).teamLogo, // Since interface Registration doesn't have teamLogo but DB has
+      members: selectedReg.members.map(m => ({ memberName: m.memberName, gameId: m.gameId }))
+    });
+    setEditModalVisible(true);
+  };
+
+  const handleEditSubmit = async () => {
+    try {
+      const values = await editForm.validateFields();
+      if (!selectedReg) return;
+
+      setActionLoading(true);
+      await updateRegistrationInfo(selectedReg.id, values);
+      message.success('Cập nhật thông tin đội thành công');
+
+      setEditModalVisible(false);
+      setDrawerVisible(false);
+      fetchRegistrations();
+    } catch (error: any) {
+      if (error.response) {
+        message.error(error.response.data.message || 'Lỗi khi cập nhật thông tin');
       }
     } finally {
       setActionLoading(false);
@@ -356,6 +393,16 @@ export default function AdminRegistrationsPage() {
         placement="right"
         onClose={() => setDrawerVisible(false)}
         open={drawerVisible}
+        extra={
+          <Button
+            type="primary"
+            ghost
+            icon={<EditOutlined />}
+            onClick={openEditModal}
+          >
+            Chỉnh sửa
+          </Button>
+        }
         footer={
           selectedReg?.status === 'PENDING' && (
             <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -433,6 +480,66 @@ export default function AdminRegistrationsPage() {
           >
             <Input.TextArea rows={4} placeholder="Nhập lý do từ chối..." />
           </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* Modal Chỉnh Sửa Thông Tin Đội */}
+      <Modal
+        title="Chỉnh sửa thông tin đội"
+        open={editModalVisible}
+        onCancel={() => setEditModalVisible(false)}
+        onOk={handleEditSubmit}
+        confirmLoading={actionLoading}
+        width={600}
+        destroyOnClose
+      >
+        <Form form={editForm} layout="vertical" preserve={false}>
+          <Form.Item
+            name="teamName"
+            label="Tên đội"
+            rules={[{ required: true, message: 'Vui lòng nhập tên đội' }]}
+          >
+            <Input placeholder="Nhập tên đội..." />
+          </Form.Item>
+
+          <Form.Item
+            name="teamLogo"
+            label="URL Logo đội (tùy chọn)"
+          >
+            <Input placeholder="https://..." />
+          </Form.Item>
+
+          <Typography.Title level={5}>Danh sách thành viên</Typography.Title>
+          <Form.List name="members">
+            {(fields, { add, remove }) => (
+              <>
+                {fields.map(({ key, name, ...restField }) => (
+                  <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+                    <Form.Item
+                      {...restField}
+                      name={[name, 'memberName']}
+                      rules={[{ required: true, message: 'Thiếu tên' }]}
+                    >
+                      <Input placeholder="Tên thành viên" />
+                    </Form.Item>
+                    <Form.Item
+                      {...restField}
+                      name={[name, 'gameId']}
+                      rules={[{ required: true, message: 'Thiếu ID' }]}
+                    >
+                      <Input placeholder="In-game ID" />
+                    </Form.Item>
+                    <MinusCircleOutlined onClick={() => remove(name)} style={{ color: 'red' }} />
+                  </Space>
+                ))}
+                <Form.Item>
+                  <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                    Thêm thành viên
+                  </Button>
+                </Form.Item>
+              </>
+            )}
+          </Form.List>
         </Form>
       </Modal>
     </Card>

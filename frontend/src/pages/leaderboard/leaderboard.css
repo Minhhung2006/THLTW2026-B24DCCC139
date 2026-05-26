@@ -107,13 +107,17 @@
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.04);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.01));
+  backdrop-filter: blur(10px);
   position: relative;
-  transition: border-color 0.2s;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .bracket-match-card:hover {
-  border-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
 .bracket-match-card.ongoing {
@@ -199,11 +203,25 @@
 
 .bracket-champion-box {
   text-align: center;
-  padding: 20px 24px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, rgba(250, 173, 20, 0.15), rgba(250, 173, 20, 0.05));
-  border: 1px solid rgba(250, 173, 20, 0.4);
+  padding: 24px 32px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(250, 173, 20, 0.2), rgba(250, 173, 20, 0.05));
+  border: 1px solid rgba(250, 173, 20, 0.6);
+  box-shadow: 0 0 24px rgba(250, 173, 20, 0.25);
   min-width: 160px;
+  position: relative;
+  overflow: hidden;
+}
+.bracket-champion-box::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+  animation: rotate-champion 10s linear infinite;
+}
+@keyframes rotate-champion {
+  100% { transform: rotate(360deg); }
 }
 
 .bracket-champion-trophy {
@@ -230,4 +248,31 @@
   text-align: center;
   padding: 60px 0;
   color: rgba(255,255,255,0.3);
+}
+
+/* ── Premium Table ──────────────────────────── */
+.premium-table .ant-table {
+  background: transparent !important;
+}
+
+.premium-table .ant-table-thead > tr > th {
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.premium-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+  transition: all 0.3s ease;
+}
+
+.premium-table .ant-table-tbody > tr:hover > td {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.premium-table .ant-table-tbody > tr:first-child > td {
+  background: linear-gradient(90deg, rgba(255, 215, 0, 0.08), transparent) !important;
 }

@@ -110,11 +110,11 @@ export default function TeamsPage() {
                       dataSource={tournament.registrations}
                       renderItem={(reg: any) => (
                         <List.Item>
-                          <Card
-                            hoverable
-                            style={{ borderRadius: 8, height: '100%' }}
-                            bodyStyle={{ padding: 20 }}
-                          >
+                            <Card
+                              hoverable
+                              className="team-card"
+                              bodyStyle={{ padding: 20 }}
+                            >
                             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
                               <Avatar 
                                 size={48} 

@@ -13,5 +13,7 @@ router.get("/my", authMiddleware, roleMiddleware("USER"), registrationController
 router.get("/", authMiddleware, roleMiddleware("ADMIN"), registrationController.getAll);
 router.patch("/:id/approve", authMiddleware, roleMiddleware("ADMIN"), registrationController.approve);
 router.patch("/:id/reject", authMiddleware, roleMiddleware("ADMIN"), registrationController.reject);
+router.put("/:id", authMiddleware, roleMiddleware("ADMIN"), registrationController.updateInfo);
+router.patch("/:id/survival-stats", authMiddleware, roleMiddleware("ADMIN"), registrationController.updateSurvivalStats);
 
 export default router;

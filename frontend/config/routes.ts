@@ -19,9 +19,9 @@ export default [
     icon: 'ScheduleOutlined'
   },
   { path: '/leaderboard', component: 'leaderboard/index', name: 'Bảng xếp hạng', icon: 'BarChartOutlined' },
-  { path: '/settings', component: 'index', name: 'Cài đặt', icon: 'SettingOutlined' },
-  { path: '/login', component: 'Auth/Login', layout: false },
-  { path: '/register', component: 'Auth/Register', layout: false },
+  { path: '/settings', component: 'settings/index', name: 'Cài đặt', icon: 'SettingOutlined' },
+  { path: '/login', component: 'Auth/index', layout: false },
+  { path: '/register', component: 'Auth/index', layout: false },
   
   {
     path: '/notifications',
@@ -36,8 +36,7 @@ export default [
     access: 'canAdmin',
     hideInMenu: true,
     routes: [
-      { path: '/admin', redirect: '/admin/dashboard' },
-      { path: '/admin/dashboard', component: 'Admin/Dashboard', name: 'Dashboard' },
+      { path: '/admin', redirect: '/admin/tournaments' },
       { path: '/admin/tournaments', component: 'Admin/tournaments/index', name: 'Quản lý giải đấu' },
       { path: '/admin/registrations', component: 'Admin/registrations/index', name: 'Quản lý đăng ký' },
       { path: '/admin/statistics', component: 'Admin/statistics/index', name: 'Thống kê' },

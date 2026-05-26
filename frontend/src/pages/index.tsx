@@ -179,11 +179,10 @@ export default function HomePage() {
         </FadeIn>
       )}
 
-      <StaggerContainer style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
+      <StaggerContainer style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24 }}>
         {GAMES.map((game, index) => (
           <AnimatedItem
             key={index}
-            style={{ flex: '1 1 220px', minWidth: 0, maxWidth: '100%' }}
           >
             <Card
               hoverable

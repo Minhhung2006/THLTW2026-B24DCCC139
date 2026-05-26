@@ -11,10 +11,12 @@ import {
   InputNumber,
   Space,
   message,
+  Popconfirm,
 } from 'antd';
-import { EditOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { updateTournament } from '@/services/adminTournament.service';
+import { updateTournament, deleteTournament } from '@/services/adminTournament.service';
+import { history } from '@umijs/max';
 
 interface Props {
   tournament: any;
@@ -81,20 +83,45 @@ export default function TournamentSidebar({
     }
   };
 
+  const handleDeleteTournament = async () => {
+    try {
+      await deleteTournament(tournament.id);
+      message.success('Xóa giải đấu thành công!');
+      history.push('/admin/tournaments'); // Về trang quản lý admin
+    } catch (err: any) {
+      if (err?.response) {
+        message.error(err.response.data?.message || 'Có lỗi xảy ra khi xóa giải đấu');
+      }
+    }
+  };
+
   return (
     <>
       <Card
         title="Thông tin giải đấu"
         extra={
           isAdmin && (
-            <Button
-              type="text"
-              icon={<EditOutlined />}
-              onClick={openEdit}
-              style={{ color: '#1890ff' }}
-            >
-              Chỉnh sửa
-            </Button>
+            <Space>
+              <Button
+                type="text"
+                icon={<EditOutlined />}
+                onClick={openEdit}
+                style={{ color: '#1890ff' }}
+              >
+                Chỉnh sửa
+              </Button>
+              <Popconfirm
+                title="Bạn có chắc muốn xóa giải đấu này?"
+                onConfirm={handleDeleteTournament}
+                okText="Xóa"
+                cancelText="Hủy"
+                okButtonProps={{ danger: true }}
+              >
+                <Button type="text" danger icon={<DeleteOutlined />}>
+                  Xóa
+                </Button>
+              </Popconfirm>
+            </Space>
           )
         }
       >
@@ -107,6 +134,8 @@ export default function TournamentSidebar({
           <strong>Kiểu giải đấu:</strong>{' '}
           {tournament.format === 'ROUND_ROBIN'
             ? '🔄 Vòng bảng (Round Robin)'
+            : tournament.format === 'SURVIVAL_STAGE'
+            ? '🪂 Sinh tồn (Survival Stage)'
             : '🏆 Nhánh cây (Loại trực tiếp)'}
         </p>
 
@@ -258,6 +287,10 @@ export default function TournamentSidebar({
                 {
                   label: '🔄 Vòng bảng (Round Robin)',
                   value: 'ROUND_ROBIN',
+                },
+                {
+                  label: '🪂 Sinh tồn (Survival Stage)',
+                  value: 'SURVIVAL_STAGE',
                 },
               ]}
             />
